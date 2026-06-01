@@ -13,6 +13,9 @@ defaults:
     shell: pwsh
     working-directory: ./XurrentHelpers
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-publish:
     if: github.actor != 'github-actions[bot]' # Exclude commits made by GitHub Actions bot
@@ -26,7 +29,7 @@ jobs:
           fetch-depth: 0 # Required for GitVersion
 
       - name: Install GitVersion
-        uses: GitTools/actions/gitversion/setup@v4.5.0
+        uses: GitTools/actions/gitversion/setup@v3.1.1
         with:
           versionSpec: "5.x"
 
