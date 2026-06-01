@@ -1,0 +1,88 @@
+BeforeAll {
+    $script:dscModuleName = 'XurrentHelpers'
+    Import-Module -Name $script:dscModuleName
+
+    $script:tempDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+    $content = @'
+# Test Article
+
+## Description
+This is a test description for the article content.
+
+## Instructions
+Follow these instructions carefully when using this feature.
+'@
+    Set-Content -Path (Join-Path $script:tempDir.FullName 'TestKnowledgeArticle.md') -Value $content -Encoding UTF8
+    $script:outputCsv = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-export.csv"
+}
+
+AfterAll {
+    Get-Module -Name $script:dscModuleName -All | Remove-Module -Force
+    Remove-Item -Path $script:tempDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $script:outputCsv -Force -ErrorAction SilentlyContinue
+}
+
+Describe 'Export-KnowledgeArticle' {
+    Context 'When the folder contains KnowledgeArticle files' {
+        It 'Should not throw' {
+            { Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv } | Should -Not -Throw
+        }
+
+        It 'Should create the output CSV file' {
+            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            Test-Path $script:outputCsv | Should -Be $true
+        }
+
+        It 'Should write one row per article' {
+            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            $rows = Import-Csv -Path $script:outputCsv
+            $rows.Count | Should -Be 1
+        }
+
+        It 'Should write the correct Subject' {
+            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            $rows = Import-Csv -Path $script:outputCsv
+            $rows[0].Subject | Should -Be 'Test Article'
+        }
+    }
+
+    Context 'When the folder contains no KnowledgeArticle files' {
+        BeforeAll {
+            $script:emptyDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+            $script:emptyOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-empty.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:emptyDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $script:emptyOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should not throw' {
+            { Export-KnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue } | Should -Not -Throw
+        }
+
+        It 'Should not create the output file' {
+            Export-KnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue
+            Test-Path $script:emptyOutput | Should -Be $false
+        }
+    }
+
+    Context 'When using -WhatIf' {
+        BeforeAll {
+            $script:whatIfOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-whatif.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:whatIfOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should support the WhatIf parameter' {
+            (Get-Command -Name 'Export-KnowledgeArticle').Parameters.ContainsKey('WhatIf') | Should -Be $true
+        }
+
+        It 'Should not create the output file with -WhatIf' {
+            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:whatIfOutput -WhatIf
+            Test-Path $script:whatIfOutput | Should -Be $false
+        }
+    }
+}
