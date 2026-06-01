@@ -7,7 +7,7 @@ BuiltModuleSubdirectory: module
 CopyPaths:
   - en-US
 #  - DSCResources
-  # - Modules
+# - Modules
 Encoding: UTF8
 # Can be used to manually specify module's semantic version if the preferred method of
 # using GitVersion is not available, and it is not possible to set the session environment
@@ -31,7 +31,7 @@ NestedModule:
 #    OutputDirectory: ///Modules/HelperSubmodule
 #    VersionedOutputDirectory: false
 #    AddToManifest: false
-#    SemVer: 
+#    SemVer:
 #    # suffix:
 #    # prefix:
 
@@ -40,7 +40,7 @@ NestedModule:
 ####################################################
 # Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
-  '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
+  ".": # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
     - test
 
@@ -87,7 +87,7 @@ BuildWorkflow:
   # Use this task when you have multiple parallel tests, which produce multiple
   # code coverage files and needs to get merged into one file.
   #merge:
-    #- Merge_CodeCoverage_Files
+  #- Merge_CodeCoverage_Files
 
   publish:
     - Publish_Release_To_GitHub
@@ -132,9 +132,8 @@ Pester:
 # CodeCoverageMergedOutputFile - the file that is created by the merge build task and
 #                                is the file that should be uploaded to code coverage services.
 #CodeCoverage:
-  #CodeCoverageFilePattern: JaCoCo_Merge.xml # the pattern used to search all pipeline test job artifacts
-  #CodeCoverageMergedOutputFile: JaCoCo_coverage.xml # the file that is created for the merged code coverage
-
+#CodeCoverageFilePattern: JaCoCo_Merge.xml # the pattern used to search all pipeline test job artifacts
+#CodeCoverageMergedOutputFile: JaCoCo_coverage.xml # the file that is created for the merged code coverage
 
 # Import ModuleBuilder tasks from a specific PowerShell module using the build
 # task's alias. Wildcard * can be used to specify all tasks that has a similar
@@ -142,14 +141,13 @@ Pester:
 # module in the file RequiredModules.psd1.
 ModuleBuildTasks:
   Sampler:
-    - '*.build.Sampler.ib.tasks'
+    - "*.build.Sampler.ib.tasks"
   Sampler.GitHubTasks:
-    - '*.ib.tasks'
+    - "*.ib.tasks"
   Sampler.CustomTasks:
-    - '*.ib.tasks'
+    - "*.ib.tasks"
   DSCResource.DocGenerator:
-    - 'Task.*'
-
+    - "Task.*"
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
@@ -168,8 +166,8 @@ GitHubConfig:
     - "CHANGELOG.md"
   ReleaseAssets:
     - output/WikiContent.zip
-  GitHubConfigUserName: tsubotitsch
-  GitHubConfigUserEmail: git@subo.org
+  GitHubConfigUserName: fasteiner
+  GitHubConfigUserEmail: fabian@stei-ner.net
   UpdateChangelogOnPrerelease: false
 
 ####################################################
@@ -184,9 +182,3 @@ DscResource.DocGenerator:
   Generate_Wiki_Sidebar:
     Debug: false
     AlwaysOverwrite: true
-
-
-
-
-
-
