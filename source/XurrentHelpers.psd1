@@ -24,7 +24,7 @@ GUID = 'e770fe20-e9fa-42c5-8c4e-7aa652cebe17'
 Author = 'Ing. Fabian Steiner BSc.'
 
 # Company or vendor of this module
-CompanyName = 'Ing. Fabian Steiner BSc.'
+CompanyName = 'techwork data GmbH'
 
 # Copyright statement for this module
 Copyright = '(c) Ing. Fabian Steiner BSc.. All rights reserved.'
@@ -95,13 +95,13 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('Xurrent', '4me', 'ITSM', 'KnowledgeArticle', 'Administration', 'API')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.html'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/fasteiner/Xurrent-Helpers'
 
         # A URL to an icon representing this module.
         # IconUri = ''
