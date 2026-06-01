@@ -13,12 +13,14 @@ For detailed API reference, see the [Xurrent API documentation](https://develope
 
 ## Functions
 
-| Knowledge Articles                    |
-| ------------------------------------- |
-| ConvertTo-XurrentKnowledgeArticle     |
-| Export-XurrentKnowledgeArticle        |
-| New-XurrentKnowledgeArticleCsvExample |
-| New-XurrentKnowledgeArticleTemplate   |
+| Knowledge Articles                     |
+| -------------------------------------- |
+| ConvertTo-XurrentKnowledgeArticle      |
+| ConvertFrom-XurrentKnowledgeArticle    |
+| Export-XurrentKnowledgeArticle         |
+| Import-XurrentKnowledgeArticle         |
+| New-XurrentKnowledgeArticleCsvExample  |
+| New-XurrentKnowledgeArticleTemplate    |
 
 ## Getting Started
 
@@ -37,7 +39,7 @@ Get-Command -Module XurrentHelpers
 
 ## Knowledge Articles
 
-The knowledge article cmdlets let you author articles in Markdown and bulk-import them into Xurrent via the CSV import format.
+The knowledge article cmdlets work in both directions: author articles in Markdown and bulk-import them into Xurrent, or export from Xurrent and convert back to Markdown files.
 
 ### Create a new article template
 
@@ -70,6 +72,20 @@ SERVICE_INSTANCES=techwork automator for ACS
 ```powershell
 Export-XurrentKnowledgeArticle -Folder .\Articles
 # Reads SERVICE / SERVICE_INSTANCES from .env automatically
+```
+
+### Import a Xurrent CSV export back to Markdown files
+
+```powershell
+Import-XurrentKnowledgeArticle -CsvPath .\export-knowledge_articles.csv -OutputFolder .\Articles
+# Writes one *KnowledgeArticle.md file per row into .\Articles
+```
+
+### Convert a single CSV row to a Markdown file
+
+```powershell
+Import-Csv .\export-knowledge_articles.csv |
+    ConvertFrom-XurrentKnowledgeArticle -Path .\Articles
 ```
 
 ### Generate an example CSV
