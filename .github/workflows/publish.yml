@@ -42,6 +42,6 @@ jobs:
       - name: Publish Module
         env:
           GalleryApiToken: ${{ secrets.PSGALLERY_API_KEY }}
-          GitHubToken: ${{ secrets.GH_TOKEN }}
+          GitHubToken: ${{ github.token }}
         run: |
           ./build.ps1 -ResolveDependency -Task publish
