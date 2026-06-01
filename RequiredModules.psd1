@@ -11,18 +11,18 @@
     #        Repository = 'PSGallery'
     #    }
     #}
-
-    InvokeBuild                 = 'latest'
-    PSScriptAnalyzer            = 'latest'
-    Pester                      = 'latest'
-    ModuleBuilder               = 'latest'
-    ChangelogManagement         = 'latest'
-    Sampler                     = 'latest'
-    'Sampler.GitHubTasks'       = 'latest'
-    'Sampler.CustomTasks'       = 'latest'
-    'DscResource.DocGenerator'  = 'latest'
-    'platyPS'                   = 'latest'
-    'MarkdownLinkCheck'         = 'latest'
+    InvokeBuild                = 'latest'
+    PSScriptAnalyzer           = 'latest'
+    Pester                     = 'latest'
+    Configuration              = 'latest'
+    ModuleBuilder              = 'latest'
+    ChangelogManagement        = 'latest'
+    Sampler                    = 'latest'
+    'Sampler.GitHubTasks'      = 'latest'
+    'Sampler.CustomTasks'      = 'latest'
+    'DscResource.DocGenerator' = 'latest'
+    'platyPS'                  = 'latest'
+    'MarkdownLinkCheck'        = 'latest'
 
 
 }

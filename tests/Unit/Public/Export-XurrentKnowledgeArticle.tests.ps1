@@ -22,25 +22,25 @@ AfterAll {
     Remove-Item -Path $script:outputCsv -Force -ErrorAction SilentlyContinue
 }
 
-Describe 'Export-KnowledgeArticle' {
+Describe 'Export-XurrentKnowledgeArticle' {
     Context 'When the folder contains KnowledgeArticle files' {
         It 'Should not throw' {
-            { Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv } | Should -Not -Throw
+            { Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv } | Should -Not -Throw
         }
 
         It 'Should create the output CSV file' {
-            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
             Test-Path $script:outputCsv | Should -Be $true
         }
 
         It 'Should write one row per article' {
-            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
             $rows = Import-Csv -Path $script:outputCsv
             $rows.Count | Should -Be 1
         }
 
         It 'Should write the correct Subject' {
-            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
             $rows = Import-Csv -Path $script:outputCsv
             $rows[0].Subject | Should -Be 'Test Article'
         }
@@ -58,11 +58,11 @@ Describe 'Export-KnowledgeArticle' {
         }
 
         It 'Should not throw' {
-            { Export-KnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue } | Should -Not -Throw
+            { Export-XurrentKnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue } | Should -Not -Throw
         }
 
         It 'Should not create the output file' {
-            Export-KnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue
+            Export-XurrentKnowledgeArticle -Folder $script:emptyDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:emptyOutput -WarningAction SilentlyContinue
             Test-Path $script:emptyOutput | Should -Be $false
         }
     }
@@ -77,11 +77,11 @@ Describe 'Export-KnowledgeArticle' {
         }
 
         It 'Should support the WhatIf parameter' {
-            (Get-Command -Name 'Export-KnowledgeArticle').Parameters.ContainsKey('WhatIf') | Should -Be $true
+            (Get-Command -Name 'Export-XurrentKnowledgeArticle').Parameters.ContainsKey('WhatIf') | Should -Be $true
         }
 
         It 'Should not create the output file with -WhatIf' {
-            Export-KnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:whatIfOutput -WhatIf
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:whatIfOutput -WhatIf
             Test-Path $script:whatIfOutput | Should -Be $false
         }
     }

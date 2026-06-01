@@ -7,7 +7,7 @@ AfterAll {
     Get-Module -Name $script:dscModuleName -All | Remove-Module -Force
 }
 
-Describe 'ConvertTo-KnowledgeArticle' {
+Describe 'ConvertTo-XurrentKnowledgeArticle' {
     BeforeAll {
         $script:tempFile = New-TemporaryFile
         $content = @'
@@ -31,11 +31,11 @@ Step 2: do that.
 
     Context 'When given a valid KnowledgeArticle file' {
         BeforeAll {
-            $script:result = ConvertTo-KnowledgeArticle -File $script:tempFile -Service 'my service' -ServiceInstances 'my instance'
+            $script:result = ConvertTo-XurrentKnowledgeArticle -File $script:tempFile -Service 'my service' -ServiceInstances 'my instance'
         }
 
         It 'Should not throw' {
-            { ConvertTo-KnowledgeArticle -File $script:tempFile -Service 'svc' -ServiceInstances 'inst' } | Should -Not -Throw
+            { ConvertTo-XurrentKnowledgeArticle -File $script:tempFile -Service 'svc' -ServiceInstances 'inst' } | Should -Not -Throw
         }
 
         It 'Should return a single object' {
@@ -82,7 +82,7 @@ Step 2: do that.
         }
 
         It 'Should return an empty Subject' {
-            $result = ConvertTo-KnowledgeArticle -File $script:noH1File -Service 's' -ServiceInstances 'i'
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noH1File -Service 's' -ServiceInstances 'i'
             $result.Subject | Should -BeNullOrEmpty
         }
     }
@@ -98,14 +98,14 @@ Step 2: do that.
         }
 
         It 'Should return empty Keywords' {
-            $result = ConvertTo-KnowledgeArticle -File $script:noKwFile -Service 's' -ServiceInstances 'i'
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noKwFile -Service 's' -ServiceInstances 'i'
             $result.Keywords | Should -BeNullOrEmpty
         }
     }
 
     Context 'When piping multiple files' {
         It 'Should return one object per file' {
-            $result = $script:tempFile, $script:tempFile | ConvertTo-KnowledgeArticle -Service 's' -ServiceInstances 'i'
+            $result = $script:tempFile, $script:tempFile | ConvertTo-XurrentKnowledgeArticle -Service 's' -ServiceInstances 'i'
             $result.Count | Should -Be 2
         }
     }

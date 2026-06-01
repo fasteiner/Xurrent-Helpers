@@ -1,4 +1,4 @@
-function ConvertTo-KnowledgeArticle
+function ConvertTo-XurrentKnowledgeArticle
 {
     <#
         .SYNOPSIS
@@ -11,8 +11,8 @@ function ConvertTo-KnowledgeArticle
         Xurrent / 4me bulk-import CSV schema.
 
         .PARAMETER File
-        The FileInfo object of the *KnowledgeArticle.md file to convert.
-        Accepts pipeline input.
+        The input file to convert. Supports FileInfo, path strings, and objects that
+        expose a FullName or Path property. Accepts pipeline input.
 
         .PARAMETER Service
         The Xurrent service name to write to the Service column of the import row.
@@ -21,17 +21,18 @@ function ConvertTo-KnowledgeArticle
         The Xurrent service instance name(s) for the Service Instances column.
 
         .EXAMPLE
-        Get-Item .\MyAppKnowledgeArticle.md | ConvertTo-KnowledgeArticle -Service 'techwork automator' -ServiceInstances 'techwork automator for ACS'
+        Get-Item .\MyAppKnowledgeArticle.md | ConvertTo-XurrentKnowledgeArticle -Service 'techwork automator' -ServiceInstances 'techwork automator for ACS'
 
         .EXAMPLE
-        Get-ChildItem -Recurse -Filter '*KnowledgeArticle.md' | ConvertTo-KnowledgeArticle -Service 'my svc' -ServiceInstances 'my inst'
+        Get-ChildItem -Recurse -Filter '*KnowledgeArticle.md' | ConvertTo-XurrentKnowledgeArticle -Service 'my svc' -ServiceInstances 'my inst'
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param
     (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [System.IO.FileInfo]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [Alias('FullName', 'Path', 'PSPath')]
+        [object]
         $File,
 
         [Parameter(Mandatory = $true)]
@@ -45,7 +46,36 @@ function ConvertTo-KnowledgeArticle
 
     process
     {
-        $raw = Get-Content -Path $File.FullName -Raw -Encoding UTF8
+        $filePath = $null
+        if ($File -is [System.IO.FileInfo])
+        {
+            $filePath = $File.FullName
+        }
+        elseif ($File -is [string])
+        {
+            $filePath = $File
+        }
+        elseif ($null -ne $File.PSObject.Properties['FullName'])
+        {
+            $filePath = [string]$File.FullName
+        }
+        elseif ($null -ne $File.PSObject.Properties['Path'])
+        {
+            $filePath = [string]$File.Path
+        }
+
+        if (-not $filePath)
+        {
+            throw 'File must be a path string, FileInfo, or an object with FullName/Path.'
+        }
+
+        $resolvedFile = Get-Item -LiteralPath $filePath -ErrorAction Stop
+        if ($resolvedFile -isnot [System.IO.FileInfo])
+        {
+            throw "Input path '$filePath' is not a file."
+        }
+
+        $raw = Get-Content -Path $resolvedFile.FullName -Raw -Encoding UTF8
 
         $subject = ''
         if ($raw -match '(?m)^#\s+(.+)$') { $subject = $Matches[1].Trim() }

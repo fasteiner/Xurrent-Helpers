@@ -1,4 +1,4 @@
-function Export-KnowledgeArticle
+function Export-XurrentKnowledgeArticle
 {
     <#
         .SYNOPSIS
@@ -99,7 +99,7 @@ function Export-KnowledgeArticle
         $rows = foreach ($file in $files)
         {
             Write-Verbose "  Processing $($file.FullName)"
-            ConvertTo-KnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances
+            ConvertTo-XurrentKnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances
         }
 
         if ($PSCmdlet.ShouldProcess($OutputPath, 'Export CSV'))

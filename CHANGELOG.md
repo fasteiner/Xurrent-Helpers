@@ -7,25 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- For new features.
-
-### Changed
-
-- For changes in existing functionality.
-
-### Deprecated
-
-- For soon-to-be removed features.
-
-### Removed
-
-- For now removed features.
-
-### Fixed
-
-- For any bug fix.
-
-### Security
-
-- In case of vulnerabilities.
+- `ConvertTo-XurrentKnowledgeArticle`: Converts a `*XurrentKnowledgeArticle.md` file into a `PSCustomObject` matching the Xurrent / 4me bulk-import CSV schema. Extracts Subject (first H1 heading), Description and Instructions (named `##` sections), and Keywords (`**Keywords:**` line). Accepts pipeline input.
+- `Export-XurrentKnowledgeArticle`: Scans a folder recursively for `*XurrentKnowledgeArticle.md` files and writes a Xurrent-compatible import CSV. Supports `.env` file for `SERVICE` and `SERVICE_INSTANCES` defaults and falls back to interactive prompts when values are not provided.
+- `New-XurrentKnowledgeArticleTemplate`: Creates a `*XurrentKnowledgeArticle.md` template file with the correct H1, Keywords, Description, and Instructions sections ready to fill in.
+- `New-XurrentKnowledgeArticleCsvExample`: Creates an example CSV pre-filled with one illustrative row in the Xurrent / 4me knowledge article bulk-import column format.
 
