@@ -67,6 +67,33 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When an .env file supplies SERVICE and SERVICE_INSTANCES' {
+        BeforeAll {
+            $script:envDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+            Set-Content -Path (Join-Path $script:envDir.FullName 'TestKnowledgeArticle.md') -Value (Get-Content (Join-Path $script:tempDir.FullName 'TestKnowledgeArticle.md') -Raw) -Encoding UTF8
+            $script:envFile = Join-Path $script:envDir.FullName '.env'
+            Set-Content -Path $script:envFile -Value "SERVICE='env service'`nSERVICE_INSTANCES='env instance'" -Encoding UTF8
+            $script:envOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-env.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:envDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $script:envOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should load Service from the .env file' {
+            Export-XurrentKnowledgeArticle -Folder $script:envDir.FullName -OutputPath $script:envOutput -EnvFile $script:envFile
+            $rows = Import-Csv -Path $script:envOutput
+            $rows[0].Service | Should -Be 'env service'
+        }
+
+        It 'Should load Service Instances from the .env file' {
+            Export-XurrentKnowledgeArticle -Folder $script:envDir.FullName -OutputPath $script:envOutput -EnvFile $script:envFile
+            $rows = Import-Csv -Path $script:envOutput
+            $rows[0].'Service Instances' | Should -Be 'env instance'
+        }
+    }
+
     Context 'When using -WhatIf' {
         BeforeAll {
             $script:whatIfOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-whatif.csv"

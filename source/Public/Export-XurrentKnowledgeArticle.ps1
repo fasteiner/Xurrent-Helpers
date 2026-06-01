@@ -66,8 +66,9 @@ function Export-XurrentKnowledgeArticle
     {
         if (Test-Path $EnvFile)
         {
-            Get-Content $EnvFile | ForEach-Object {
-                if ($_ -match "^([A-Z_]+)\s*=\s*'?([^']*?)'?\s*$")
+            foreach ($line in (Get-Content $EnvFile))
+            {
+                if ($line -match "^([A-Z_]+)\s*=\s*'?([^']*?)'?\s*$")
                 {
                     $key = $Matches[1]
                     $val = $Matches[2]

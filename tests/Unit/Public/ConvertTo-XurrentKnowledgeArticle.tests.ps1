@@ -109,4 +109,43 @@ Step 2: do that.
             $result.Count | Should -Be 2
         }
     }
+
+    Context 'When given a string path' {
+        It 'Should accept a plain string file path' {
+            { ConvertTo-XurrentKnowledgeArticle -File $script:tempFile.FullName -Service 's' -ServiceInstances 'i' } | Should -Not -Throw
+        }
+
+        It 'Should return the correct Subject when given a string path' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:tempFile.FullName -Service 's' -ServiceInstances 'i'
+            $result.Subject | Should -Be 'My Article Title'
+        }
+    }
+
+    Context 'When given an object with a FullName property' {
+        It 'Should accept an object with a FullName property' {
+            $obj = [PSCustomObject]@{ FullName = $script:tempFile.FullName }
+            { ConvertTo-XurrentKnowledgeArticle -File $obj -Service 's' -ServiceInstances 'i' } | Should -Not -Throw
+        }
+    }
+
+    Context 'When given an object with a Path property' {
+        It 'Should accept an object with a Path property' {
+            $obj = [PSCustomObject]@{ Path = $script:tempFile.FullName }
+            { ConvertTo-XurrentKnowledgeArticle -File $obj -Service 's' -ServiceInstances 'i' } | Should -Not -Throw
+        }
+    }
+
+    Context 'When given an unsupported object type' {
+        It 'Should throw when the object has no usable path property' {
+            $obj = [PSCustomObject]@{ SomeOtherProperty = 'value' }
+            { ConvertTo-XurrentKnowledgeArticle -File $obj -Service 's' -ServiceInstances 'i' } | Should -Throw
+        }
+    }
+
+    Context 'When given a path that is not a file' {
+        It 'Should throw when the path points to a directory' {
+            $dir = [System.IO.Path]::GetTempPath()
+            { ConvertTo-XurrentKnowledgeArticle -File $dir -Service 's' -ServiceInstances 'i' } | Should -Throw
+        }
+    }
 }
