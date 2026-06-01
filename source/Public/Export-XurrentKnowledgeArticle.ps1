@@ -2,17 +2,27 @@ function Export-XurrentKnowledgeArticle
 {
     <#
         .SYNOPSIS
-        Exports Xurrent knowledge articles from Markdown files to a CSV import file.
+        Exports Xurrent knowledge articles from Markdown files or objects to a CSV import file.
 
         .DESCRIPTION
-        Scans a folder recursively for *KnowledgeArticle.md files and writes a CSV in the
-        Xurrent / 4me bulk-import format. Subject is read from the first H1 heading,
+        Accepts either a folder path (scanned recursively for *KnowledgeArticle.md files) or an
+        array of pre-built article objects (e.g. the output of ConvertTo-XurrentKnowledgeArticle)
+        and writes a CSV in the Xurrent / 4me bulk-import format.
+
+        When using the Folder parameter set, Subject is read from the first H1 heading,
         Description and Instructions from same-named ## sections, Keywords from a
         **Keywords:** line. Service and ServiceInstances can be set via parameters or
         loaded from a .env file (SERVICE and SERVICE_INSTANCES keys).
 
+        When using the InputObject parameter set the objects are exported as-is; Service,
+        ServiceInstances, and EnvFile parameters are not applicable.
+
         .PARAMETER Folder
         Path to the folder to scan recursively for *KnowledgeArticle.md files.
+
+        .PARAMETER InputObject
+        One or more knowledge article objects (as returned by ConvertTo-XurrentKnowledgeArticle)
+        to export directly without scanning a folder. Accepts pipeline input.
 
         .PARAMETER Service
         Xurrent service name written to the Service column of every export row.
@@ -31,25 +41,40 @@ function Export-XurrentKnowledgeArticle
         Defaults to .env in the current working directory when that file exists.
 
         .EXAMPLE
-        Export-KnowledgeArticle -Folder .\ACS -Service 'techwork automator' -ServiceInstances 'techwork automator for ACS'
+        Export-XurrentKnowledgeArticle -Folder .\ACS -Service 'techwork automator' -ServiceInstances 'techwork automator for ACS'
 
         .EXAMPLE
-        Export-KnowledgeArticle -Folder .\TTTech
+        Export-XurrentKnowledgeArticle -Folder .\TTTech
         Loads SERVICE and SERVICE_INSTANCES from .env in the current directory.
+
+        .EXAMPLE
+        Get-ChildItem -Recurse -Filter '*KnowledgeArticle.md' |
+            ConvertTo-XurrentKnowledgeArticle -Service 'techwork automator' -ServiceInstances 'ACS' |
+            Export-XurrentKnowledgeArticle -OutputPath .\out.csv
+        Pipes pre-converted article objects directly into the export.
+
+        .EXAMPLE
+        $articles = ConvertTo-XurrentKnowledgeArticle -File .\MyArticleKnowledgeArticle.md -Service 'svc' -ServiceInstances 'inst'
+        Export-XurrentKnowledgeArticle -InputObject $articles
+        Passes an object array directly without pipeline.
     #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'FromFolder')]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'FromFolder')]
         [ValidateScript({ Test-Path $_ -PathType Container })]
         [string]
         $Folder,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'FromObjects', ValueFromPipeline = $true)]
+        [object[]]
+        $InputObject,
+
+        [Parameter(ParameterSetName = 'FromFolder')]
         [string]
         $Service = 'techwork automator',
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'FromFolder')]
         [string]
         $ServiceInstances = '',
 
@@ -57,13 +82,24 @@ function Export-XurrentKnowledgeArticle
         [string]
         $OutputPath = (Join-Path (Get-Location).Path 'import-knowledge_articles.csv'),
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'FromFolder')]
         [string]
         $EnvFile = (Join-Path (Get-Location).Path '.env')
     )
 
+    begin
+    {
+        $rows = [System.Collections.Generic.List[object]]::new()
+    }
+
     process
     {
+        if ($PSCmdlet.ParameterSetName -eq 'FromObjects')
+        {
+            foreach ($obj in $InputObject) { $rows.Add($obj) }
+            return
+        }
+
         if (Test-Path $EnvFile)
         {
             foreach ($line in (Get-Content $EnvFile))
@@ -97,15 +133,19 @@ function Export-XurrentKnowledgeArticle
 
         Write-Verbose "Found $($files.Count) knowledge article(s) in $Folder"
 
-        $rows = foreach ($file in $files)
+        foreach ($file in $files)
         {
             Write-Verbose "  Processing $($file.FullName)"
-            ConvertTo-XurrentKnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances
+            $rows.Add((ConvertTo-XurrentKnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances))
         }
+    }
+
+    end
+    {
+        if ($rows.Count -eq 0) { return }
 
         if ($PSCmdlet.ShouldProcess($OutputPath, 'Export CSV'))
         {
-            # PS 7+ needs utf8BOM for a BOM-prefixed file; PS 5.1 UTF8 already includes one.
             $encoding = if ($PSVersionTable.PSVersion.Major -ge 7) { 'utf8BOM' } else { 'UTF8' }
             $rows | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding $encoding
             Write-Verbose "Exported $($rows.Count) article(s) to $OutputPath"

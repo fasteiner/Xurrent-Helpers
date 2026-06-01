@@ -94,6 +94,81 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When InputObject is passed as an array' {
+        BeforeAll {
+            $script:articleObj = [PSCustomObject]@{
+                ID                  = ''
+                Source              = '4me'
+                'Source ID'         = ''
+                Status              = 'work_in_progress'
+                Service             = 'obj service'
+                'Service Instances' = 'obj instance'
+                Subject             = 'Object Article'
+                Description         = 'Desc'
+                Instructions        = 'Steps'
+                Keywords            = 'kw'
+                Template            = ''
+            }
+            $script:objOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-obj.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:objOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should not throw' {
+            { Export-XurrentKnowledgeArticle -InputObject $script:articleObj -OutputPath $script:objOutput } | Should -Not -Throw
+        }
+
+        It 'Should create the output CSV file' {
+            Export-XurrentKnowledgeArticle -InputObject $script:articleObj -OutputPath $script:objOutput
+            Test-Path $script:objOutput | Should -Be $true
+        }
+
+        It 'Should write one row per object' {
+            Export-XurrentKnowledgeArticle -InputObject @($script:articleObj, $script:articleObj) -OutputPath $script:objOutput
+            (Import-Csv -Path $script:objOutput).Count | Should -Be 2
+        }
+
+        It 'Should preserve the Subject from the object' {
+            Export-XurrentKnowledgeArticle -InputObject $script:articleObj -OutputPath $script:objOutput
+            (Import-Csv -Path $script:objOutput)[0].Subject | Should -Be 'Object Article'
+        }
+    }
+
+    Context 'When InputObject is supplied via pipeline' {
+        BeforeAll {
+            $script:pipeObj = [PSCustomObject]@{
+                ID                  = ''
+                Source              = '4me'
+                'Source ID'         = ''
+                Status              = 'work_in_progress'
+                Service             = 'pipe svc'
+                'Service Instances' = 'pipe inst'
+                Subject             = 'Piped Article'
+                Description         = 'Desc'
+                Instructions        = 'Steps'
+                Keywords            = ''
+                Template            = ''
+            }
+            $script:pipeOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-pipe.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:pipeOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should accept pipeline input and write all rows' {
+            @($script:pipeObj, $script:pipeObj) | Export-XurrentKnowledgeArticle -OutputPath $script:pipeOutput
+            (Import-Csv -Path $script:pipeOutput).Count | Should -Be 2
+        }
+
+        It 'Should preserve Subject from piped objects' {
+            $script:pipeObj | Export-XurrentKnowledgeArticle -OutputPath $script:pipeOutput
+            (Import-Csv -Path $script:pipeOutput)[0].Subject | Should -Be 'Piped Article'
+        }
+    }
+
     Context 'When using -WhatIf' {
         BeforeAll {
             $script:whatIfOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-whatif.csv"

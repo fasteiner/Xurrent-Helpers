@@ -5,6 +5,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ConvertFrom-XurrentKnowledgeArticle`: Converts a PSCustomObject in the Xurrent / 4me bulk-import CSV schema (e.g. a row from `Import-Csv`) into a `*KnowledgeArticle.md` file. Accepts pipeline input for batch processing. Invalid filename characters in Subject are replaced with hyphens.
+- `Import-XurrentKnowledgeArticle`: Reads a Xurrent knowledge article CSV export and writes one `*KnowledgeArticle.md` file per row to a specified output folder. Supports `-WhatIf` via propagation to `ConvertFrom-XurrentKnowledgeArticle`.
+
 ## [0.2.0] - 2026-06-01
 
 ### Added
