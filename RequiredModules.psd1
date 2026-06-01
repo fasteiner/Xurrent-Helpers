@@ -19,7 +19,7 @@
     ChangelogManagement        = 'latest'
     Sampler                    = 'latest'
     'Sampler.GitHubTasks'      = 'latest'
-    'Sampler.CustomTasks'      = 'latest'
+    'Sampler.CustomTasks'      = '0.3.1'
     'DscResource.DocGenerator' = 'latest'
     'platyPS'                  = 'latest'
     'MarkdownLinkCheck'        = 'latest'
