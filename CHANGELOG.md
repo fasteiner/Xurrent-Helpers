@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-01
+
 ### Added
 
 - `ConvertTo-XurrentKnowledgeArticle`: Converts a `*XurrentKnowledgeArticle.md` file into a `PSCustomObject` matching the Xurrent / 4me bulk-import CSV schema. Extracts Subject (first H1 heading), Description and Instructions (named `##` sections), and Keywords (`**Keywords:**` line). Accepts pipeline input.
