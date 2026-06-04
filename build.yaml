@@ -67,6 +67,7 @@ BuildWorkflow:
 
   pack:
     - build
+    - test
     - docs
     - package_module_nupkg
 

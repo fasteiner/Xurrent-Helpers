@@ -5,6 +5,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added automatic execution of the Pester tests to the pack action in `build.yaml` to ensure tests are run before packaging the module.
+- `Connect-Xurrent`: Establishes an authenticated session to the Xurrent REST and GraphQL APIs. Supports Bearer token, OAuth2 client credentials, CliXML credential files, and Microsoft.PowerShell.SecretManagement vaults. Targets Demo, QA, or Prod environments and verifies connectivity via `/me` unless `-SkipConnectionTest` is specified.
+- `Disconnect-Xurrent`: Clears the active Xurrent session and loaded configuration. Requires high-impact confirmation to prevent accidental disconnection in automation.
+- `Invoke-XurrentRestMethod`: Sends authenticated HTTP requests to the Xurrent REST API. Builds the full URI from a relative path, supports query parameters, JSON bodies, and returns parsed objects or raw responses.
+- `Invoke-XurrentGraphQLQuery`: Executes GraphQL queries and mutations against the Xurrent GraphQL endpoint. Handles rate limiting with automatic retry and returns the `data` property of the response.
+- `Invoke-XurrentBulkUpload`: Bulk-imports objects into Xurrent via the `/import` endpoint. Serializes to a temporary CSV, auto-chunks batches exceeding `JobLimit`, polls for completion, and reports row-level errors from the job log.
+- `Invoke-XurrentBulkDownload`: Bulk-exports one or more resource types via the `/export` endpoint. Returns parsed object arrays for single types or a hashtable for multiple types. Supports delta exports and saving the raw file.
+- `New-XurrentWebhookConfiguration`: Saves a Techwork Automator (or other) webhook URL and Basic-auth credential to the module's `.env` config file and an encrypted CliXML file alongside the PowerShell profile.
+- `Invoke-XurrentWebhook`: Triggers a configured webhook by name (loaded from config) or directly by URL. Does not require an active Xurrent API session.
+- `Import-XurrentConfiguration`: Loads a `.env` configuration file into the module session. Auto-connects to the API when `-AutoConnect` is specified or `XURRENT_AUTO_CONNECT=true` is present in the file. Called automatically on module import when a default config is found at `(Split-Path $PROFILE)\.xurrent\config.env`.
+
 ## [0.4.0] - 2026-06-17
 
 ### Added
