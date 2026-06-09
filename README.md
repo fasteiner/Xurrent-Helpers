@@ -66,7 +66,7 @@ You can also store `SERVICE` and `SERVICE_INSTANCES` in a `.env` file in the wor
 
 ```ini
 SERVICE=techwork automator
-SERVICE_INSTANCES=techwork automator for ACS
+SERVICE_INSTANCES=techwork automator for techwork
 ```
 
 ```powershell
