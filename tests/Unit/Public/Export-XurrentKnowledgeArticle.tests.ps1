@@ -44,6 +44,59 @@ Describe 'Export-XurrentKnowledgeArticle' {
             $rows = Import-Csv -Path $script:outputCsv
             $rows[0].Subject | Should -Be 'Test Article'
         }
+
+        It 'Should export an empty ID column when the Markdown has no **ID:** line' {
+            # The fixture TestKnowledgeArticle.md intentionally has no **ID:** line (backwards compatibility).
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            $rows = Import-Csv -Path $script:outputCsv
+            $rows[0].ID | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'When round-tripping articles that contain IDs' {
+        BeforeAll {
+            # Source CSV with explicit IDs -> Markdown (Import) -> CSV (Export) must preserve the IDs.
+            $script:idSourceCsv = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-id-source.csv"
+            @(
+                [PSCustomObject]@{
+                    ID = '100'; Source = '4me'; 'Source ID' = ''; Status = 'published'
+                    Service = 'svc'; 'Service Instances' = 'inst'
+                    Subject = 'Alpha Article'; Description = 'Alpha description.'
+                    Instructions = 'Alpha instructions.'; Keywords = 'alpha'; Template = ''
+                },
+                [PSCustomObject]@{
+                    ID = '200'; Source = '4me'; 'Source ID' = ''; Status = 'published'
+                    Service = 'svc'; 'Service Instances' = 'inst'
+                    Subject = 'Beta Article'; Description = 'Beta description.'
+                    Instructions = 'Beta instructions.'; Keywords = 'beta'; Template = ''
+                }
+            ) | Export-Csv -Path $script:idSourceCsv -NoTypeInformation -Encoding UTF8
+
+            $script:idMdDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+            Import-XurrentKnowledgeArticle -CsvPath $script:idSourceCsv -OutputFolder $script:idMdDir.FullName
+
+            $script:idRoundtripCsv = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-id-roundtrip.csv"
+            Export-XurrentKnowledgeArticle -Folder $script:idMdDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:idRoundtripCsv
+            $script:roundtripRows = Import-Csv -Path $script:idRoundtripCsv
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:idSourceCsv -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $script:idMdDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $script:idRoundtripCsv -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should preserve the ID for the first article' {
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Alpha Article' }).ID | Should -Be '100'
+        }
+
+        It 'Should preserve the ID for the second article' {
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Beta Article' }).ID | Should -Be '200'
+        }
+
+        It 'Should preserve every original ID through the round-trip' {
+            ($script:roundtripRows.ID | Sort-Object) | Should -Be @('100', '200')
+        }
     }
 
     Context 'When the folder contains no KnowledgeArticle files' {
