@@ -81,7 +81,7 @@ function ConvertTo-XurrentKnowledgeArticle
         if ($raw -match '(?m)^#\s+(.+)$') { $subject = $Matches[1].Trim() }
 
         $id = ''
-        if ($raw -match '\*\*ID:\*\*\s*(.+)') { $id = $Matches[1].Trim() }
+        if ($raw -match '(?m)^\*\*ID:\*\*\s*(.+)') { $id = $Matches[1].Trim() }
 
         $keywords = ''
         if ($raw -match '\*\*Keywords:\*\*\s*(.+)') { $keywords = $Matches[1].Trim() }
