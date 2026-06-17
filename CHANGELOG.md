@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Invoke-XurrentWebhook`: Triggers a configured webhook by name (loaded from config) or directly by URL. Does not require an active Xurrent API session.
 - `Import-XurrentConfiguration`: Loads a `.env` configuration file into the module session. Auto-connects to the API when `-AutoConnect` is specified or `XURRENT_AUTO_CONNECT=true` is present in the file. Called automatically on module import when a default config is found at `(Split-Path $PROFILE)\.xurrent\config.env`.
 
+## [0.4.0] - 2026-06-17
+
+### Added
+
+- `ConvertFrom-XurrentKnowledgeArticle`: Writes the article `ID` from the CSV row as a `**ID:**` line in the generated Markdown file, enabling round-trip editing of existing articles.
+- `ConvertTo-XurrentKnowledgeArticle`: Parses the `**ID:**` line from Markdown files and populates the `ID` column in the exported CSV, so existing articles can be updated by ID.
+
 ## [0.3.0] - 2026-06-01
 
 ### Added
@@ -37,4 +44,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Replaced `ForEach-Object` with `foreach` in `Export-XurrentKnowledgeArticle` to resolve a false-positive PSScriptAnalyzer warning about unused variable assignments.
-
