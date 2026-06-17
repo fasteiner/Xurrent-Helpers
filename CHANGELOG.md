@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-17
+
 ### Added
 
 - `ConvertFrom-XurrentKnowledgeArticle`: Writes the article `ID` from the CSV row as an `**ID:**` line in the generated Markdown file, enabling round-trip editing of existing articles.
