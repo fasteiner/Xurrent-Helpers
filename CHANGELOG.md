@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-17
+
 ### Added
 
 - `Connect-Xurrent`: Establishes an authenticated session to the Xurrent REST and GraphQL APIs. Supports Bearer token, OAuth2 client credentials, CliXML credential files, and Microsoft.PowerShell.SecretManagement vaults. Targets Demo, QA, or Prod environments and verifies connectivity via `/me` unless `-SkipConnectionTest` is specified.
