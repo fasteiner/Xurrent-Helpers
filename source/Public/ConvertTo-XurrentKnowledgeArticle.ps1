@@ -7,8 +7,8 @@ function ConvertTo-XurrentKnowledgeArticle
         .DESCRIPTION
         Reads a *KnowledgeArticle.md file and extracts the Subject (first H1 heading),
         Description (## Description section), Instructions (## Instructions section),
-        and Keywords (**Keywords:** line) into a PSCustomObject formatted for the
-        Xurrent / 4me bulk-import CSV schema.
+        Keywords (**Keywords:** line), and ID (**ID:** line) into a PSCustomObject formatted
+        for the Xurrent / 4me bulk-import CSV schema.
 
         .PARAMETER File
         The input file to convert. Supports FileInfo, path strings, and objects that
@@ -80,11 +80,14 @@ function ConvertTo-XurrentKnowledgeArticle
         $subject = ''
         if ($raw -match '(?m)^#\s+(.+)$') { $subject = $Matches[1].Trim() }
 
+        $id = ''
+        if ($raw -match '\*\*ID:\*\*\s*(.+)') { $id = $Matches[1].Trim() }
+
         $keywords = ''
         if ($raw -match '\*\*Keywords:\*\*\s*(.+)') { $keywords = $Matches[1].Trim() }
 
         [PSCustomObject]@{
-            ID                  = ''
+            ID                  = $id
             Source              = '4me'
             'Source ID'         = ''
             Status              = 'work_in_progress'

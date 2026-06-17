@@ -7,12 +7,12 @@ function ConvertFrom-XurrentKnowledgeArticle
         .DESCRIPTION
         Takes a PSCustomObject in the Xurrent / 4me bulk-import CSV schema (as produced
         by Import-Csv or ConvertTo-XurrentKnowledgeArticle) and writes a *KnowledgeArticle.md
-        file with the correct structure: H1 for Subject, **Keywords:** line, and ## Description
-        and ## Instructions sections. Accepts pipeline input for batch processing of CSV rows.
-        Invalid filename characters in Subject are replaced with hyphens.
+        file with the correct structure: H1 for Subject, **ID:** line, **Keywords:** line, and
+        ## Description and ## Instructions sections. Accepts pipeline input for batch processing
+        of CSV rows. Invalid filename characters in Subject are replaced with hyphens.
 
         .PARAMETER InputObject
-        A PSCustomObject with Subject, Description, Instructions, and Keywords properties,
+        A PSCustomObject with ID, Subject, Description, Instructions, and Keywords properties,
         matching the Xurrent knowledge article CSV schema. Accepts pipeline input.
 
         .PARAMETER Path
@@ -42,6 +42,7 @@ function ConvertFrom-XurrentKnowledgeArticle
 
     process
     {
+        $id           = if ($InputObject.ID)           { [string]$InputObject.ID }           else { '' }
         $subject      = if ($InputObject.Subject)      { [string]$InputObject.Subject }      else { '' }
         $description  = if ($InputObject.Description)  { [string]$InputObject.Description }  else { '' }
         $instructions = if ($InputObject.Instructions) { [string]$InputObject.Instructions } else { '' }
@@ -57,6 +58,8 @@ function ConvertFrom-XurrentKnowledgeArticle
 
         $content = @"
 # $subject
+
+**ID:** $id
 
 **Keywords:** $keywords
 
