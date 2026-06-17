@@ -148,4 +148,72 @@ Step 2: do that.
             { ConvertTo-XurrentKnowledgeArticle -File $dir -Service 's' -ServiceInstances 'i' } | Should -Throw
         }
     }
+
+    Context 'When the file has an ID line' {
+        BeforeAll {
+            $script:idFile = New-TemporaryFile
+            $content = @'
+# Title With ID
+
+**ID:** 42
+
+## Description
+Body text.
+'@
+            Set-Content -Path $script:idFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:idFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should extract the value from the **ID:** line' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:idFile -Service 's' -ServiceInstances 'i'
+            $result.ID | Should -Be '42'
+        }
+    }
+
+    Context 'When the file has no ID line' {
+        BeforeAll {
+            $script:noIdFile = New-TemporaryFile
+            Set-Content -Path $script:noIdFile.FullName -Value "# Title`n`n## Description`nSome description text." -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:noIdFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should return an empty ID (backwards compatible)' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noIdFile -Service 's' -ServiceInstances 'i'
+            $result.ID | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'When **ID:** appears only inside section content' {
+        BeforeAll {
+            # The genuine ID line is absent; **ID:** only appears mid-line inside the
+            # Description/Instructions bodies. The extraction regex is anchored to the
+            # start of a line, so these references must NOT be picked up as the article ID.
+            $script:embeddedIdFile = New-TemporaryFile
+            $content = @'
+# Embedded Reference Article
+
+## Description
+This paragraph mentions **ID:** 999 in the middle of a sentence.
+
+## Instructions
+Look up the **ID:** 888 value referenced inline here.
+'@
+            Set-Content -Path $script:embeddedIdFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:embeddedIdFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should not pick up a mid-line **ID:** reference as the article ID' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:embeddedIdFile -Service 's' -ServiceInstances 'i'
+            $result.ID | Should -BeNullOrEmpty
+        }
+    }
 }

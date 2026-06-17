@@ -93,6 +93,61 @@ Describe 'ConvertFrom-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When the row has a numeric ID' {
+        BeforeAll {
+            $script:idRow = [PSCustomObject]@{
+                ID           = 12345
+                Subject      = 'Article With ID'
+                Description  = 'Some description.'
+                Instructions = 'Some instructions.'
+                Keywords     = 'kw'
+            }
+            $script:idResult = ConvertFrom-XurrentKnowledgeArticle -InputObject $script:idRow -Path $script:tempDir.FullName
+        }
+
+        It 'Should write the numeric ID as an **ID:** line' {
+            $content = Get-Content $script:idResult.FullName -Raw
+            $content | Should -Match '(?m)^\*\*ID:\*\* 12345\s*$'
+        }
+    }
+
+    Context 'When the row has no ID' {
+        BeforeAll {
+            $script:noIdRow = [PSCustomObject]@{
+                Subject      = 'Article Without ID'
+                Description  = 'Some description.'
+                Instructions = 'Some instructions.'
+                Keywords     = 'kw'
+            }
+            $script:noIdResult = ConvertFrom-XurrentKnowledgeArticle -InputObject $script:noIdRow -Path $script:tempDir.FullName
+        }
+
+        It 'Should not throw when the row has no ID (backwards compatible)' {
+            { ConvertFrom-XurrentKnowledgeArticle -InputObject $script:noIdRow -Path $script:tempDir.FullName } | Should -Not -Throw
+        }
+
+        It 'Should write an empty **ID:** line' {
+            $content = Get-Content $script:noIdResult.FullName -Raw
+            # The ID line is present for schema consistency but carries no value.
+            $content | Should -Match '(?m)^\*\*ID:\*\*\s*$'
+        }
+    }
+
+    Context 'When round-tripping a numeric ID back through ConvertTo' {
+        It 'Should recover the same numeric ID from the generated Markdown' {
+            $row = [PSCustomObject]@{
+                ID           = 777
+                Subject      = 'Round Trip Article'
+                Description  = 'desc'
+                Instructions = 'inst'
+                Keywords     = 'kw'
+            }
+            $file = ConvertFrom-XurrentKnowledgeArticle -InputObject $row -Path $script:tempDir.FullName
+            $obj = ConvertTo-XurrentKnowledgeArticle -File $file.FullName -Service 's' -ServiceInstances 'i'
+            $obj.ID | Should -Be '777'
+        }
+    }
+
     Context 'When piping multiple rows' {
         BeforeAll {
             $script:pipeDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))

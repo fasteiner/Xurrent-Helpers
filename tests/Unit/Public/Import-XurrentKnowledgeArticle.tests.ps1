@@ -57,6 +57,18 @@ Describe 'Import-XurrentKnowledgeArticle' {
             $content = Get-Content $file.FullName -Raw
             $content | Should -Match '(?m)^# Second Article'
         }
+
+        It 'Should write the ID from the CSV as an **ID:** line in the first article' {
+            $file = Get-ChildItem $script:outputDir.FullName -Filter 'First Article*'
+            $content = Get-Content $file.FullName -Raw
+            $content | Should -Match '(?m)^\*\*ID:\*\* 1\s*$'
+        }
+
+        It 'Should write the ID from the CSV as an **ID:** line in the second article' {
+            $file = Get-ChildItem $script:outputDir.FullName -Filter 'Second Article*'
+            $content = Get-Content $file.FullName -Raw
+            $content | Should -Match '(?m)^\*\*ID:\*\* 2\s*$'
+        }
     }
 
     Context 'When the CSV has no data rows' {
