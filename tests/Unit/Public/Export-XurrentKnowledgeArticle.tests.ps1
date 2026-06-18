@@ -82,13 +82,13 @@ Describe 'Export-XurrentKnowledgeArticle' {
             @(
                 [PSCustomObject]@{
                     ID = '100'; Source = '4me'; 'Source ID' = ''; Status = 'published'
-                    Service = 'svc'; 'Service Instances' = 'inst'
+                    Service = 'svc alpha'; 'Service Instances' = 'inst alpha'
                     Subject = 'Alpha Article'; Description = 'Alpha description.'
                     Instructions = 'Alpha instructions.'; Keywords = 'alpha'; Template = ''
                 },
                 [PSCustomObject]@{
                     ID = '200'; Source = '4me'; 'Source ID' = ''; Status = 'published'
-                    Service = 'svc'; 'Service Instances' = 'inst'
+                    Service = 'svc beta'; 'Service Instances' = 'inst beta'
                     Subject = 'Beta Article'; Description = 'Beta description.'
                     Instructions = 'Beta instructions.'; Keywords = 'beta'; Template = ''
                 }
@@ -98,7 +98,7 @@ Describe 'Export-XurrentKnowledgeArticle' {
             Import-XurrentKnowledgeArticle -CsvPath $script:idSourceCsv -OutputFolder $script:idMdDir.FullName
 
             $script:idRoundtripCsv = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-id-roundtrip.csv"
-            Export-XurrentKnowledgeArticle -Folder $script:idMdDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:idRoundtripCsv
+            Export-XurrentKnowledgeArticle -Folder $script:idMdDir.FullName -Service 'fallback svc' -ServiceInstances 'fallback inst' -OutputPath $script:idRoundtripCsv
             $script:roundtripRows = Import-Csv -Path $script:idRoundtripCsv
         }
 
@@ -118,6 +118,16 @@ Describe 'Export-XurrentKnowledgeArticle' {
 
         It 'Should preserve every original ID through the round-trip' {
             ($script:roundtripRows.ID | Sort-Object) | Should -Be @('100', '200')
+        }
+
+        It 'Should preserve Service metadata from Markdown over export parameter defaults' {
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Alpha Article' }).Service | Should -Be 'svc alpha'
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Beta Article' }).Service | Should -Be 'svc beta'
+        }
+
+        It 'Should preserve Service Instances metadata from Markdown over export parameter defaults' {
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Alpha Article' }).'Service Instances' | Should -Be 'inst alpha'
+            ($script:roundtripRows | Where-Object { $_.Subject -eq 'Beta Article' }).'Service Instances' | Should -Be 'inst beta'
         }
     }
 
