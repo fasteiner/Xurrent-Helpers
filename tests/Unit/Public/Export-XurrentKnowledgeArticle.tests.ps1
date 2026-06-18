@@ -232,8 +232,18 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
 
         It 'Should append the default file name inside the directory' {
+            $csvPath = Join-Path $script:dirOutput.FullName 'import-knowledge_articles.csv'
+            Remove-Item -Path $csvPath -Force -ErrorAction SilentlyContinue
             Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:dirOutput.FullName
-            Test-Path (Join-Path $script:dirOutput.FullName 'import-knowledge_articles.csv') | Should -Be $true
+            Test-Path $csvPath | Should -Be $true
+        }
+
+        It 'Should append the default file name when OutputPath ends with a directory separator' {
+            $csvPath = Join-Path $script:dirOutput.FullName 'import-knowledge_articles.csv'
+            Remove-Item -Path $csvPath -Force -ErrorAction SilentlyContinue
+            $pathWithSep = "$($script:dirOutput.FullName)$([System.IO.Path]::DirectorySeparatorChar)"
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $pathWithSep
+            Test-Path $csvPath | Should -Be $true
         }
     }
 
