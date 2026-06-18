@@ -222,6 +222,21 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When OutputPath is a directory' {
+        BeforeAll {
+            $script:dirOutput = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:dirOutput.FullName -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should append the default file name inside the directory' {
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:dirOutput.FullName
+            Test-Path (Join-Path $script:dirOutput.FullName 'import-knowledge_articles.csv') | Should -Be $true
+        }
+    }
+
     Context 'When using -WhatIf' {
         BeforeAll {
             $script:whatIfOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-whatif.csv"

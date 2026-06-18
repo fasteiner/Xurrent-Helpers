@@ -39,7 +39,7 @@ Get-Command -Module XurrentHelpers
 
 ## Knowledge Articles
 
-The knowledge article cmdlets work in both directions: author articles in Markdown and bulk-import them into Xurrent, or export from Xurrent and convert back to Markdown files.
+The knowledge article cmdlets work in both directions: author articles in Markdown and bulk-import them into Xurrent, or export from Xurrent and convert back to Markdown files. The article `ID` is preserved through both conversions (as an `**ID:**` line in the Markdown and an `ID` column in the CSV), so a round-tripped article updates the existing Xurrent record instead of creating a duplicate.
 
 ### Create a new article template
 
@@ -74,6 +74,14 @@ Export-XurrentKnowledgeArticle -Folder .\Articles
 # Reads SERVICE / SERVICE_INSTANCES from .env automatically
 ```
 
+You can also pipe pre-built article objects (from `ConvertTo-XurrentKnowledgeArticle`) straight into the export, which is handy when you want to filter or adjust them first:
+
+```powershell
+Get-ChildItem -Recurse -Filter '*KnowledgeArticle.md' |
+    ConvertTo-XurrentKnowledgeArticle -Service 'My Service' -ServiceInstances 'My Service Instance' |
+    Export-XurrentKnowledgeArticle -OutputPath .\out.csv
+```
+
 ### Import a Xurrent CSV export back to Markdown files
 
 ```powershell
@@ -87,6 +95,22 @@ Import-XurrentKnowledgeArticle -CsvPath .\export-knowledge_articles.csv -OutputF
 Import-Csv .\export-knowledge_articles.csv |
     ConvertFrom-XurrentKnowledgeArticle -Path .\Articles
 ```
+
+### Update existing articles (round-trip by ID)
+
+Because the article `ID` survives the round-trip, you can pull existing articles out of Xurrent, edit them as Markdown, and push them back as updates rather than new records:
+
+```powershell
+# 1. Export from Xurrent, then convert the CSV to editable Markdown (the **ID:** line is filled in)
+Import-XurrentKnowledgeArticle -CsvPath .\export-knowledge_articles.csv -OutputFolder .\Articles
+
+# 2. Edit the *KnowledgeArticle.md files — leave the **ID:** line intact
+
+# 3. Convert back to an import CSV; the ID is carried through so Xurrent updates the existing articles
+Export-XurrentKnowledgeArticle -Folder .\Articles
+```
+
+> New articles authored from `New-XurrentKnowledgeArticleTemplate` have no `**ID:**` line and are imported as new records.
 
 ### Generate an example CSV
 
