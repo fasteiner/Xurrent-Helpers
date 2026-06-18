@@ -96,8 +96,9 @@ function Export-XurrentKnowledgeArticle
         # When only a directory is supplied (including the default current location),
         # append the default file name so the export always targets a CSV file.
         if ((Test-Path -LiteralPath $OutputPath -PathType Container) -or
-            $OutputPath.EndsWith([System.IO.Path]::DirectorySeparatorChar) -or
-            $OutputPath.EndsWith([System.IO.Path]::AltDirectorySeparatorChar))
+            ($OutputPath -and (
+                $OutputPath.EndsWith([System.IO.Path]::DirectorySeparatorChar) -or
+                $OutputPath.EndsWith([System.IO.Path]::AltDirectorySeparatorChar))))
         {
             $OutputPath = Join-Path $OutputPath 'import-knowledge_articles.csv'
         }
