@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-18
+
 ### Fixed
 
 - `Export-XurrentKnowledgeArticle`: When `-OutputPath` is a directory (or ends with a directory separator), the default file name `import-knowledge_articles.csv` is now appended automatically instead of failing to write a file.
