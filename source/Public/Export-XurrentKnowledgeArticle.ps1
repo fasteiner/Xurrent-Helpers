@@ -33,7 +33,9 @@ function Export-XurrentKnowledgeArticle
         Can be supplied via SERVICE_INSTANCES= in a .env file; prompts interactively if still empty.
 
         .PARAMETER OutputPath
-        Full path of the CSV file to write.
+        Full path of the CSV file to write. When only a directory is supplied (or the
+        path ends with a directory separator), the default file name
+        import-knowledge_articles.csv is appended automatically.
         Defaults to import-knowledge_articles.csv in the current working directory.
 
         .PARAMETER EnvFile
@@ -80,7 +82,7 @@ function Export-XurrentKnowledgeArticle
 
         [Parameter()]
         [string]
-        $OutputPath = (Join-Path (Get-Location).Path 'import-knowledge_articles.csv'),
+        $OutputPath = (Get-Location).Path,
 
         [Parameter(ParameterSetName = 'FromFolder')]
         [string]
@@ -90,6 +92,16 @@ function Export-XurrentKnowledgeArticle
     begin
     {
         $rows = [System.Collections.Generic.List[object]]::new()
+
+        # When only a directory is supplied (including the default current location),
+        # append the default file name so the export always targets a CSV file.
+        if ((Test-Path -LiteralPath $OutputPath -PathType Container) -or
+            ($OutputPath -and (
+                $OutputPath.EndsWith([System.IO.Path]::DirectorySeparatorChar) -or
+                $OutputPath.EndsWith([System.IO.Path]::AltDirectorySeparatorChar))))
+        {
+            $OutputPath = Join-Path $OutputPath 'import-knowledge_articles.csv'
+        }
     }
 
     process

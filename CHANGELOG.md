@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `Export-XurrentKnowledgeArticle`: When `-OutputPath` is a directory (or ends with a directory separator), the default file name `import-knowledge_articles.csv` is now appended automatically instead of failing to write a file.
+
 ## [0.4.0] - 2026-06-17
 
 ### Added
@@ -32,4 +36,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Replaced `ForEach-Object` with `foreach` in `Export-XurrentKnowledgeArticle` to resolve a false-positive PSScriptAnalyzer warning about unused variable assignments.
-
