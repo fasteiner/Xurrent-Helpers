@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-06-19
+
 ### Fixed
 
 - `Export-XurrentKnowledgeArticle` and `New-XurrentKnowledgeArticleCsvExample`: The CSV is now written as UTF-8 **without** a byte-order mark (BOM) on every supported PowerShell version. Previously the file was written with a BOM (`utf8BOM` on PowerShell 7+, and the BOM-emitting `UTF8` encoding on Windows PowerShell 5.1), which caused Xurrent to reject the import with "Illegal quoting in line 1".
