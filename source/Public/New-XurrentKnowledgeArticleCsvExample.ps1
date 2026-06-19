@@ -53,11 +53,7 @@ function New-XurrentKnowledgeArticleCsvExample
             # Write BOM-less UTF-8. Xurrent rejects a leading BOM ("Illegal quoting in line 1"),
             # and Windows PowerShell 5.1 has no BOM-less option for Export-Csv -Encoding, so build
             # the CSV text and write it with an explicit encoding that behaves the same on PS 5.1 and 7+.
-            $resolvedPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($OutputPath)
-            $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
-            $csvLines = $example | ConvertTo-Csv -NoTypeInformation
-            [System.IO.File]::WriteAllLines($resolvedPath, $csvLines, $utf8NoBom)
-            Get-Item -Path $OutputPath
+            Get-Item -LiteralPath $resolvedPath
         }
     }
 }
