@@ -7,7 +7,9 @@ function Export-XurrentKnowledgeArticle
         .DESCRIPTION
         Accepts either a folder path (scanned recursively for *KnowledgeArticle.md files) or an
         array of pre-built article objects (e.g. the output of ConvertTo-XurrentKnowledgeArticle)
-        and writes a CSV in the Xurrent / 4me bulk-import format.
+        and writes a CSV in the Xurrent / 4me bulk-import format. The CSV is encoded as
+        UTF-8 without a byte-order mark (BOM); a BOM makes Xurrent reject the file with
+        "Illegal quoting in line 1".
 
         When using the Folder parameter set, Subject is read from the first H1 heading,
         Description and Instructions from same-named ## sections, Keywords from a
@@ -146,8 +148,13 @@ function Export-XurrentKnowledgeArticle
 
         if ($PSCmdlet.ShouldProcess($OutputPath, 'Export CSV'))
         {
-            $encoding = if ($PSVersionTable.PSVersion.Major -ge 7) { 'utf8BOM' } else { 'UTF8' }
-            $rows | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding $encoding
+            # Write BOM-less UTF-8. Xurrent rejects a leading BOM ("Illegal quoting in line 1"),
+            # and Windows PowerShell 5.1 has no BOM-less option for Export-Csv -Encoding, so build
+            # the CSV text and write it with an explicit encoding that behaves the same on PS 5.1 and 7+.
+            $resolvedPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($OutputPath)
+            $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+            $csvLines = $rows | ConvertTo-Csv -NoTypeInformation
+            [System.IO.File]::WriteAllLines($resolvedPath, $csvLines, $utf8NoBom)
             Write-Verbose "Exported $($rows.Count) article(s) to $OutputPath"
         }
     }
