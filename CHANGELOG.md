@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Export-XurrentKnowledgeArticle` and `New-XurrentKnowledgeArticleCsvExample`: The CSV is now written as UTF-8 **without** a byte-order mark (BOM) on every supported PowerShell version. Previously the file was written with a BOM (`utf8BOM` on PowerShell 7+, and the BOM-emitting `UTF8` encoding on Windows PowerShell 5.1), which caused Xurrent to reject the import with "Illegal quoting in line 1".
 
+## [0.4.1] - 2026-06-18
+
+### Fixed
+
+- `Export-XurrentKnowledgeArticle`: When `-OutputPath` is a directory (or ends with a directory separator), the default file name `import-knowledge_articles.csv` is now appended automatically instead of failing to write a file.
+
 ## [0.4.0] - 2026-06-17
 
 ### Added
@@ -36,4 +42,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Replaced `ForEach-Object` with `foreach` in `Export-XurrentKnowledgeArticle` to resolve a false-positive PSScriptAnalyzer warning about unused variable assignments.
-
