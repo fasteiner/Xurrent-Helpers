@@ -60,6 +60,15 @@ Describe 'New-XurrentKnowledgeArticleCsvExample' {
             $rows = Import-Csv -Path $script:outputCsv
             $rows[0].Status | Should -Be 'work_in_progress'
         }
+
+        It 'Should write the CSV as UTF-8 without a byte-order mark (BOM)' {
+            # Xurrent rejects a UTF-8 BOM with "Illegal quoting in line 1"; read raw bytes because
+            # Import-Csv silently strips a BOM and would not catch a regression here.
+            $bytes = [System.IO.File]::ReadAllBytes($script:outputCsv)
+            # The UTF-8 BOM is the three-byte sequence 0xEF 0xBB 0xBF.
+            $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+            $hasBom | Should -BeFalse
+        }
     }
 
     Context 'When using -WhatIf' {

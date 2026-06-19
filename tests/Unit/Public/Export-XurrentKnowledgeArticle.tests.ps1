@@ -53,6 +53,28 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When checking the file encoding' {
+        # Xurrent rejects a UTF-8 BOM with "Illegal quoting in line 1"; the CSV must be BOM-less
+        # on every supported PowerShell version. Read raw bytes (Import-Csv silently strips a BOM,
+        # so a string/CSV comparison would not catch a regression here).
+        It 'Should write the CSV as UTF-8 without a byte-order mark (BOM)' {
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            $bytes = [System.IO.File]::ReadAllBytes($script:outputCsv)
+            # The UTF-8 BOM is the three-byte sequence 0xEF 0xBB 0xBF.
+            $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+            $hasBom | Should -BeFalse
+        }
+
+        It 'Should begin the file with CSV content, not a BOM' {
+            Export-XurrentKnowledgeArticle -Folder $script:tempDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:outputCsv
+            $bytes = [System.IO.File]::ReadAllBytes($script:outputCsv)
+            # Decode without BOM detection so a stray BOM would surface as U+FEFF, then assert the
+            # text starts with the 'ID' header column rather than the BOM character.
+            $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+            $text.TrimStart('"') | Should -Match '^ID'
+        }
+    }
+
     Context 'When round-tripping articles that contain IDs' {
         BeforeAll {
             # Source CSV with explicit IDs -> Markdown (Import) -> CSV (Export) must preserve the IDs.
