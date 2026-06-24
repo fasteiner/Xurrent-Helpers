@@ -133,6 +133,52 @@ Describe 'ConvertFrom-XurrentKnowledgeArticle' {
         }
     }
 
+    Context 'When the row has Service metadata' {
+        BeforeAll {
+            $script:serviceRow = [PSCustomObject]@{
+                Subject             = 'Article With Service'
+                Service             = 'meta service'
+                'Service Instances' = 'meta instance'
+                Description         = 'Some description.'
+                Instructions        = 'Some instructions.'
+                Keywords            = 'kw'
+            }
+            $script:serviceResult = ConvertFrom-XurrentKnowledgeArticle -InputObject $script:serviceRow -Path $script:tempDir.FullName
+        }
+
+        It 'Should write the **Service:** line' {
+            $content = Get-Content $script:serviceResult.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service:\*\* meta service\s*$'
+        }
+
+        It 'Should write the **Service Instances:** line' {
+            $content = Get-Content $script:serviceResult.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service Instances:\*\* meta instance\s*$'
+        }
+    }
+
+    Context 'When the row has no Service metadata' {
+        BeforeAll {
+            $script:noServiceRow = [PSCustomObject]@{
+                Subject      = 'Article Without Service'
+                Description  = 'Some description.'
+                Instructions = 'Some instructions.'
+                Keywords     = 'kw'
+            }
+            $script:noServiceResult = ConvertFrom-XurrentKnowledgeArticle -InputObject $script:noServiceRow -Path $script:tempDir.FullName
+        }
+
+        It 'Should write an empty **Service:** line' {
+            $content = Get-Content $script:noServiceResult.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service:\*\*\s*$'
+        }
+
+        It 'Should write an empty **Service Instances:** line' {
+            $content = Get-Content $script:noServiceResult.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service Instances:\*\*\s*$'
+        }
+    }
+
     Context 'When round-tripping a numeric ID back through ConvertTo' {
         It 'Should recover the same numeric ID from the generated Markdown' {
             $row = [PSCustomObject]@{

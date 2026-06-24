@@ -189,6 +189,63 @@ Body text.
         }
     }
 
+    Context 'When the file has Service metadata lines' {
+        BeforeAll {
+            $script:serviceMetaFile = New-TemporaryFile
+            $content = @'
+# Title With Service Metadata
+
+**Service:** metadata service
+**Service Instances:** metadata instance
+
+## Description
+Body text.
+'@
+            Set-Content -Path $script:serviceMetaFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:serviceMetaFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should prefer **Service:** metadata over the -Service parameter' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:serviceMetaFile -Service 'fallback service' -ServiceInstances 'fallback instance'
+            $result.Service | Should -Be 'metadata service'
+        }
+
+        It 'Should prefer **Service Instances:** metadata over the -ServiceInstances parameter' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:serviceMetaFile -Service 'fallback service' -ServiceInstances 'fallback instance'
+            $result.'Service Instances' | Should -Be 'metadata instance'
+        }
+    }
+
+    Context 'When the file has no Service metadata lines' {
+        BeforeAll {
+            $script:noServiceMetaFile = New-TemporaryFile
+            $content = @'
+# Title Without Service Metadata
+
+## Description
+Body text.
+'@
+            Set-Content -Path $script:noServiceMetaFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:noServiceMetaFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should fall back to the -Service parameter' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noServiceMetaFile -Service 'fallback service' -ServiceInstances 'fallback instance'
+            $result.Service | Should -Be 'fallback service'
+        }
+
+        It 'Should fall back to the -ServiceInstances parameter' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noServiceMetaFile -Service 'fallback service' -ServiceInstances 'fallback instance'
+            $result.'Service Instances' | Should -Be 'fallback instance'
+        }
+    }
+
     Context 'When **ID:** appears only inside section content' {
         BeforeAll {
             # The genuine ID line is absent; **ID:** only appears mid-line inside the

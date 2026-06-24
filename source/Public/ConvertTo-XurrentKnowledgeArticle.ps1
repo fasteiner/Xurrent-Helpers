@@ -7,8 +7,10 @@ function ConvertTo-XurrentKnowledgeArticle
         .DESCRIPTION
         Reads a *KnowledgeArticle.md file and extracts the Subject (first H1 heading),
         Description (## Description section), Instructions (## Instructions section),
-        Keywords (**Keywords:** line), and ID (**ID:** line) into a PSCustomObject formatted
-        for the Xurrent / 4me bulk-import CSV schema.
+        Keywords (**Keywords:** line), ID (**ID:** line), Service (**Service:** line),
+        and Service Instances (**Service Instances:** line) into a PSCustomObject formatted
+        for the Xurrent / 4me bulk-import CSV schema. Service metadata from the Markdown
+        prelude is used first; the Service and ServiceInstances parameters are fallbacks.
 
         .PARAMETER File
         The input file to convert. Supports FileInfo, path strings, and objects that
@@ -83,16 +85,23 @@ function ConvertTo-XurrentKnowledgeArticle
         $id = ''
         $prelude = ($raw -split '(?m)^\s*##\s+', 2)[0]
         if ($prelude -match '(?m)^\*\*ID:\*\*\s*(.*?)\s*$') { $id = $Matches[1].Trim() }
+        $metadataService = ''
+        if ($prelude -match '(?m)^\*\*Service:\*\*\s*(.*?)\s*$') { $metadataService = $Matches[1].Trim() }
+        $metadataServiceInstances = ''
+        if ($prelude -match '(?m)^\*\*Service Instances:\*\*\s*(.*?)\s*$') { $metadataServiceInstances = $Matches[1].Trim() }
         $keywords = ''
         if ($raw -match '\*\*Keywords:\*\*\s*(.+)') { $keywords = $Matches[1].Trim() }
+
+        $effectiveService = if ($metadataService) { $metadataService } else { $Service }
+        $effectiveServiceInstances = if ($metadataServiceInstances) { $metadataServiceInstances } else { $ServiceInstances }
 
         [PSCustomObject]@{
             ID                  = $id
             Source              = '4me'
             'Source ID'         = ''
             Status              = 'work_in_progress'
-            Service             = $Service
-            'Service Instances' = $ServiceInstances
+            Service             = $effectiveService
+            'Service Instances' = $effectiveServiceInstances
             Subject             = $subject
             Description         = Get-Section -Content $raw -Heading 'Description'
             Instructions        = Get-Section -Content $raw -Heading 'Instructions'

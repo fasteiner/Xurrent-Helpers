@@ -8,8 +8,9 @@ function Import-XurrentKnowledgeArticle
         Reads a CSV file in the Xurrent / 4me bulk-import format and writes one
         *KnowledgeArticle.md file per row to the specified output folder. Subject becomes
         the H1 heading and the filename prefix, Description and Instructions populate their
-        respective ## sections, and Keywords are written to a **Keywords:** line. Passes
-        -WhatIf through to ConvertFrom-XurrentKnowledgeArticle for dry-run support.
+        respective ## sections, and ID/Service/Service Instances/Keywords are written as
+        metadata lines. Passes -WhatIf through to ConvertFrom-XurrentKnowledgeArticle for
+        dry-run support.
 
         .PARAMETER CsvPath
         Path to the Xurrent knowledge article CSV export file to read.

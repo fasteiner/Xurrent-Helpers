@@ -13,8 +13,10 @@ function Export-XurrentKnowledgeArticle
 
         When using the Folder parameter set, Subject is read from the first H1 heading,
         Description and Instructions from same-named ## sections, Keywords from a
-        **Keywords:** line. Service and ServiceInstances can be set via parameters or
-        loaded from a .env file (SERVICE and SERVICE_INSTANCES keys).
+        **Keywords:** line, and ID/Service/Service Instances from their metadata lines.
+        Service and ServiceInstances can be set via parameters or loaded from a .env file
+        (SERVICE and SERVICE_INSTANCES keys) and are used as fallbacks when the Markdown
+        file does not provide service metadata.
 
         When using the InputObject parameter set the objects are exported as-is; Service,
         ServiceInstances, and EnvFile parameters are not applicable.

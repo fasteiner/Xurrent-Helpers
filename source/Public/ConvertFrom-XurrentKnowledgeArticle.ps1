@@ -7,13 +7,15 @@ function ConvertFrom-XurrentKnowledgeArticle
         .DESCRIPTION
         Takes a PSCustomObject in the Xurrent / 4me bulk-import CSV schema (as produced
         by Import-Csv or ConvertTo-XurrentKnowledgeArticle) and writes a *KnowledgeArticle.md
-        file with the correct structure: H1 for Subject, **ID:** line, **Keywords:** line, and
+        file with the correct structure: H1 for Subject, **ID:**, **Service:**,
+        **Service Instances:**, and **Keywords:** metadata lines, plus
         ## Description and ## Instructions sections. Accepts pipeline input for batch processing
         of CSV rows. Invalid filename characters in Subject are replaced with hyphens.
 
         .PARAMETER InputObject
-        A PSCustomObject with ID, Subject, Description, Instructions, and Keywords properties,
-        matching the Xurrent knowledge article CSV schema. Accepts pipeline input.
+        A PSCustomObject with ID, Service, Service Instances, Subject, Description,
+        Instructions, and Keywords properties, matching the Xurrent knowledge article CSV
+        schema. Accepts pipeline input.
 
         .PARAMETER Path
         The folder in which to write the Markdown file.
@@ -43,6 +45,29 @@ function ConvertFrom-XurrentKnowledgeArticle
     process
     {
         $id           = if ($InputObject.ID)           { [string]$InputObject.ID }           else { '' }
+        $service      = if ($null -ne $InputObject.PSObject.Properties['Service'] -and
+                            $InputObject.PSObject.Properties['Service'].Value)
+                        {
+                            [string]$InputObject.Service
+                        }
+                        else
+                        {
+                            ''
+                        }
+        $serviceInstances = if ($null -ne $InputObject.PSObject.Properties['Service Instances'] -and
+                                $InputObject.PSObject.Properties['Service Instances'].Value)
+                            {
+                                [string]$InputObject.'Service Instances'
+                            }
+                            elseif ($null -ne $InputObject.PSObject.Properties['ServiceInstances'] -and
+                                    $InputObject.PSObject.Properties['ServiceInstances'].Value)
+                            {
+                                [string]$InputObject.ServiceInstances
+                            }
+                            else
+                            {
+                                ''
+                            }
         $subject      = if ($InputObject.Subject)      { [string]$InputObject.Subject }      else { '' }
         $description  = if ($InputObject.Description)  { [string]$InputObject.Description }  else { '' }
         $instructions = if ($InputObject.Instructions) { [string]$InputObject.Instructions } else { '' }
@@ -60,6 +85,10 @@ function ConvertFrom-XurrentKnowledgeArticle
 # $subject
 
 **ID:** $id
+
+**Service:** $service
+
+**Service Instances:** $serviceInstances
 
 **Keywords:** $keywords
 
