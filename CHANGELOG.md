@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-06-24
+
 ### Added
 
 - `ConvertFrom-XurrentKnowledgeArticle`: Writes `Service` and `Service Instances` values from CSV rows as `**Service:**` and `**Service Instances:**` metadata lines in generated Markdown files.
