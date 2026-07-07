@@ -402,4 +402,43 @@ Description body.
             $result.Keywords | Should -Not -Match '##'
         }
     }
+
+    Context 'When the **Service Instances:** line is present but empty' {
+        BeforeAll {
+            $script:emptyInstFile = New-TemporaryFile
+            $content = @'
+# Article With Empty Service Instances
+
+**Service:** real service
+
+**Service Instances:** 
+
+**Keywords:** kw1
+
+## Description
+
+Description body.
+'@
+            Set-Content -Path $script:emptyInstFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:emptyInstFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should fall back to the -ServiceInstances parameter when the **Service Instances:** line has no value' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyInstFile -Service 's' -ServiceInstances 'fallback inst'
+            $result.'Service Instances' | Should -Be 'fallback inst'
+        }
+
+        It 'Should not capture subsequent metadata into the Service Instances field' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyInstFile -Service 's' -ServiceInstances 'fallback inst'
+            $result.'Service Instances' | Should -Not -Match '\*\*Keywords'
+        }
+
+        It 'Should still correctly extract Keywords when Service Instances is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyInstFile -Service 's' -ServiceInstances 'fallback inst'
+            $result.Keywords | Should -Be 'kw1'
+        }
+    }
 }
