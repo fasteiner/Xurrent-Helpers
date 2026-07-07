@@ -90,7 +90,7 @@ function ConvertTo-XurrentKnowledgeArticle
         $metadataServiceInstances = ''
         if ($prelude -match '(?m)^\*\*Service Instances:\*\*[ \t]*(.*?)[ \t]*$') { $metadataServiceInstances = $Matches[1].Trim() }
         $keywords = ''
-        if ($raw -match '(?m)^\*\*Keywords:\*\*[ \t]*(.+?)[ \t]*$') { $keywords = $Matches[1].Trim() }
+        if ($raw -match '(?m)^\*\*Keywords:\*\*[ \t]*(.*?)[ \t]*$') { $keywords = $Matches[1].Trim() }
 
         $effectiveService = if ($metadataService) { $metadataService } else { $Service }
         $effectiveServiceInstances = if ($metadataServiceInstances) { $metadataServiceInstances } else { $ServiceInstances }
