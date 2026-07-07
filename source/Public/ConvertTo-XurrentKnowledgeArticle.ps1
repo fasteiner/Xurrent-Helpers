@@ -84,13 +84,13 @@ function ConvertTo-XurrentKnowledgeArticle
 
         $id = ''
         $prelude = ($raw -split '(?m)^\s*##\s+', 2)[0]
-        if ($prelude -match '(?m)^\*\*ID:\*\*\s*(.*?)\s*$') { $id = $Matches[1].Trim() }
+        if ($prelude -match '(?m)^\*\*ID:\*\*[ \t]*(.*?)[ \t]*$') { $id = $Matches[1].Trim() }
         $metadataService = ''
-        if ($prelude -match '(?m)^\*\*Service:\*\*\s*(.*?)\s*$') { $metadataService = $Matches[1].Trim() }
+        if ($prelude -match '(?m)^\*\*Service:\*\*[ \t]*(.*?)[ \t]*$') { $metadataService = $Matches[1].Trim() }
         $metadataServiceInstances = ''
-        if ($prelude -match '(?m)^\*\*Service Instances:\*\*\s*(.*?)\s*$') { $metadataServiceInstances = $Matches[1].Trim() }
+        if ($prelude -match '(?m)^\*\*Service Instances:\*\*[ \t]*(.*?)[ \t]*$') { $metadataServiceInstances = $Matches[1].Trim() }
         $keywords = ''
-        if ($raw -match '\*\*Keywords:\*\*\s*(.+)') { $keywords = $Matches[1].Trim() }
+        if ($raw -match '(?m)^\*\*Keywords:\*\*[ \t]*(.+?)[ \t]*$') { $keywords = $Matches[1].Trim() }
 
         $effectiveService = if ($metadataService) { $metadataService } else { $Service }
         $effectiveServiceInstances = if ($metadataServiceInstances) { $metadataServiceInstances } else { $ServiceInstances }
