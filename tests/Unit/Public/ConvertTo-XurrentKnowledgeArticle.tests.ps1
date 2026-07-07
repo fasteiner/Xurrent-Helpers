@@ -273,4 +273,133 @@ Look up the **ID:** 888 value referenced inline here.
             $result.ID | Should -BeNullOrEmpty
         }
     }
+
+    Context 'When the **ID:** line is present but empty' {
+        BeforeAll {
+            $script:emptyIdFile = New-TemporaryFile
+            $content = @'
+# Article With Empty ID
+
+**ID:** 
+
+**Service:** real service
+
+**Service Instances:** real instances
+
+**Keywords:** kw1, kw2
+
+## Description
+
+Description body.
+
+## Instructions
+
+Instructions body.
+'@
+            Set-Content -Path $script:emptyIdFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:emptyIdFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should return an empty ID when the **ID:** line has no value' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.ID | Should -BeNullOrEmpty
+        }
+
+        It 'Should not capture subsequent metadata into the ID field' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.ID | Should -Not -Match '\*\*Service'
+        }
+
+        It 'Should still correctly extract the Service when ID is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.Service | Should -Be 'real service'
+        }
+
+        It 'Should still correctly extract Service Instances when ID is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.'Service Instances' | Should -Be 'real instances'
+        }
+
+        It 'Should still correctly extract Keywords when ID is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.Keywords | Should -Be 'kw1, kw2'
+        }
+
+        It 'Should still correctly extract the Description body when ID is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyIdFile -Service 's' -ServiceInstances 'i'
+            $result.Description | Should -Be 'Description body.'
+        }
+    }
+
+    Context 'When the **Service:** line is present but empty' {
+        BeforeAll {
+            $script:emptyServiceFile = New-TemporaryFile
+            $content = @'
+# Article With Empty Service
+
+**ID:** 99
+
+**Service:** 
+
+**Service Instances:** real instances
+
+## Description
+
+Description body.
+'@
+            Set-Content -Path $script:emptyServiceFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:emptyServiceFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should fall back to the -Service parameter when the **Service:** line has no value' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyServiceFile -Service 'fallback' -ServiceInstances 'fi'
+            $result.Service | Should -Be 'fallback'
+        }
+
+        It 'Should not capture subsequent metadata into the Service field' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyServiceFile -Service 'fallback' -ServiceInstances 'fi'
+            $result.Service | Should -Not -Match '\*\*Service Instances'
+        }
+
+        It 'Should still correctly extract Service Instances when Service is empty' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyServiceFile -Service 'fallback' -ServiceInstances 'fi'
+            $result.'Service Instances' | Should -Be 'real instances'
+        }
+    }
+
+    Context 'When the **Keywords:** line is present but empty' {
+        BeforeAll {
+            $script:emptyKwFile = New-TemporaryFile
+            $content = @'
+# Article With Empty Keywords
+
+**Keywords:** 
+
+## Description
+
+Description body.
+'@
+            Set-Content -Path $script:emptyKwFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:emptyKwFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should return empty Keywords when the **Keywords:** line has no value' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyKwFile -Service 's' -ServiceInstances 'i'
+            $result.Keywords | Should -BeNullOrEmpty
+        }
+
+        It 'Should not capture section headings into the Keywords field' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:emptyKwFile -Service 's' -ServiceInstances 'i'
+            $result.Keywords | Should -Not -Match '##'
+        }
+    }
 }
