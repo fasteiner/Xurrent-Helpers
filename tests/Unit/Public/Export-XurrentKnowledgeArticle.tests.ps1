@@ -53,6 +53,37 @@ Describe 'Export-XurrentKnowledgeArticle' {
         }
     }
 
+        Context 'When an ID metadata line is explicitly empty' {
+            BeforeAll {
+                $script:emptyIdDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+                $content = @'
+# Article With Empty ID
+
+**ID:**
+**Service:** metadata service
+**Service Instances:** metadata instance
+
+## Description
+Description body.
+'@
+                Set-Content -Path (Join-Path $script:emptyIdDir.FullName 'EmptyIdKnowledgeArticle.md') -Value $content -Encoding UTF8
+                $script:emptyIdOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-empty-id.csv"
+            }
+
+            AfterAll {
+                Remove-Item -Path $script:emptyIdDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -Path $script:emptyIdOutput -Force -ErrorAction SilentlyContinue
+            }
+
+            It 'Should export an empty ID without consuming the following metadata' {
+                Export-XurrentKnowledgeArticle -Folder $script:emptyIdDir.FullName -Service 'fallback service' -ServiceInstances 'fallback instance' -OutputPath $script:emptyIdOutput
+                $rows = Import-Csv -Path $script:emptyIdOutput
+                $rows[0].ID | Should -BeNullOrEmpty
+                $rows[0].Service | Should -Be 'metadata service'
+                $rows[0].'Service Instances' | Should -Be 'metadata instance'
+            }
+        }
+
     Context 'When checking the file encoding' {
         # Xurrent rejects a UTF-8 BOM with "Illegal quoting in line 1"; the CSV must be BOM-less
         # on every supported PowerShell version. Read raw bytes (Import-Csv silently strips a BOM,
