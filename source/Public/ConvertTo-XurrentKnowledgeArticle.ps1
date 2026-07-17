@@ -20,7 +20,7 @@ function ConvertTo-XurrentKnowledgeArticle
         The Xurrent service name to write to the Service column of the import row.
 
         .PARAMETER ServiceInstances
-        The Xurrent service instance name(s) for the Service Instances column. Optional — the Xurrent API does not require a value.
+        The Xurrent service instance name(s) for the Service Instances column. Optional - the Xurrent API does not require a value.
 
         .EXAMPLE
         Get-Item .\MyAppKnowledgeArticle.md | ConvertTo-XurrentKnowledgeArticle -Service 'techwork automator' -ServiceInstances 'techwork automator for ACS'

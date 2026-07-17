@@ -33,8 +33,10 @@ function Export-XurrentKnowledgeArticle
         Defaults to 'techwork automator'. Can also be supplied via SERVICE= in a .env file.
 
         .PARAMETER ServiceInstances
-        Xurrent service instance name(s) for the Service Instances column. Optional — the Xurrent
-        API does not require a value. Can be supplied via SERVICE_INSTANCES= in a .env file.
+        Xurrent service instance name(s) for the Service Instances column. Optional - the Xurrent
+        API does not require a value. Can be supplied via SERVICE_INSTANCES= in a .env file. When
+        omitted, a warning is written because the article(s) will then be visible to every
+        specialist covered for the service rather than scoped to one instance.
 
         .PARAMETER OutputPath
         Full path of the CSV file to write. When only a directory is supplied (or the
@@ -133,6 +135,11 @@ function Export-XurrentKnowledgeArticle
         if (-not $Service)
         {
             $Service = Read-Host -Prompt "Enter SERVICE name (e.g. 'techwork automator')"
+        }
+
+        if (-not $ServiceInstances)
+        {
+            Write-Warning "No Service Instances specified for service '$Service' - the article(s) will be visible to every specialist covered for any instance of this service, rather than scoped to one specific instance."
         }
 
         $files = Get-ChildItem -Path $Folder -Recurse -Filter '*KnowledgeArticle.md'

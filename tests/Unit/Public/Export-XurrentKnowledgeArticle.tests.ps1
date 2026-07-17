@@ -324,20 +324,30 @@ Description body.
 
         It 'Should not invoke Read-Host for ServiceInstances when the parameter is omitted' {
             Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
-            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput -WarningAction SilentlyContinue
             Should -Invoke -ModuleName XurrentHelpers -CommandName Read-Host -Exactly -Times 0 -Scope It
         }
 
         It 'Should write an empty Service Instances column when ServiceInstances is not provided' {
             Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
-            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput -WarningAction SilentlyContinue
             $rows = Import-Csv -Path $script:noInstOutput
             $rows[0].'Service Instances' | Should -BeNullOrEmpty
         }
 
         It 'Should not throw when ServiceInstances is omitted' {
             Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
-            { Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput } | Should -Not -Throw
+            { Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput -WarningAction SilentlyContinue } | Should -Not -Throw
+        }
+
+        It 'Should warn that the article(s) will not be scoped to a specific Service Instance' {
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput -WarningVariable warnings -WarningAction SilentlyContinue
+            $warnings.Message | Should -Match 'svc'
+        }
+
+        It 'Should not warn when ServiceInstances is provided' {
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -ServiceInstances 'inst' -OutputPath $script:noInstOutput -WarningVariable warnings -WarningAction SilentlyContinue
+            $warnings.Count | Should -Be 0
         }
     }
 
