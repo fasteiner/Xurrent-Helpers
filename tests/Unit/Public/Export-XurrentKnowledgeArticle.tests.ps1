@@ -342,7 +342,7 @@ Description body.
 
         It 'Should warn that the article(s) will not be scoped to a specific Service Instance' {
             Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput -WarningVariable warnings -WarningAction SilentlyContinue
-            $warnings.Message | Should -Match 'svc'
+            (($warnings | ForEach-Object Message) -join "`n") | Should -Match 'No Service Instances specified'
         }
 
         It 'Should not warn when ServiceInstances is provided' {
