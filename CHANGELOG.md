@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-17
+
 ### Fixed
 
 - `ConvertTo-XurrentKnowledgeArticle`: An empty `**ID:**` line (present but without a value) was incorrectly captured by the extraction regex, causing subsequent metadata lines (`**Service:**`, `**Service Instances:**`) to be pulled into the ID field and corrupting the exported CSV payload. The same cross-line greediness bug affected the `**Service:**`, `**Service Instances:**`, and `**Keywords:**` patterns. All four regexes now use `[ \t]*` (horizontal whitespace only) instead of `\s*`, preventing them from crossing line boundaries when a metadata value is empty. Closes #11.
