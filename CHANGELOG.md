@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `Export-XurrentKnowledgeArticle`: `-ServiceInstances` is now fully optional. When omitted and not present in the `.env` file, the parameter defaults to an empty string without prompting interactively. The Xurrent API does not require a service instance value.
+
 ## [0.6.0] - 2026-07-17
 
 ### Fixed
