@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Export-XurrentKnowledgeArticle`: `-ServiceInstances` is now fully optional. When omitted and not present in the `.env` file, the parameter defaults to an empty string without prompting interactively. The Xurrent API does not require a service instance value.
 - `ConvertTo-XurrentKnowledgeArticle`: `-ServiceInstances` is now optional (defaults to an empty string). The Xurrent API does not require a service instance value.
-- `Export-XurrentKnowledgeArticle`: Now writes a warning when `-ServiceInstances` resolves to an empty value, explaining that the exported article(s) will be visible to every specialist covered for the service rather than scoped to one specific instance.
+- `Export-XurrentKnowledgeArticle`: Now writes a warning when one or more exported article rows have an empty `Service Instances` value (after considering per-file metadata and fallbacks), explaining that those article(s) will be visible to every specialist covered for the service rather than scoped to one specific instance.
 
 ## [0.6.0] - 2026-07-17
 
