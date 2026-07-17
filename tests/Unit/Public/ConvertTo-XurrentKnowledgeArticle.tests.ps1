@@ -403,6 +403,32 @@ Description body.
         }
     }
 
+    Context 'When -ServiceInstances is omitted and no metadata provides a value' {
+        BeforeAll {
+            $script:noInstFile = New-TemporaryFile
+            $content = @'
+# Article Without Service Instances
+
+## Description
+Body text.
+'@
+            Set-Content -Path $script:noInstFile.FullName -Value $content -Encoding UTF8
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:noInstFile.FullName -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should not throw when -ServiceInstances is omitted' {
+            { ConvertTo-XurrentKnowledgeArticle -File $script:noInstFile -Service 'svc' } | Should -Not -Throw
+        }
+
+        It 'Should return an empty Service Instances when neither metadata nor parameter provides a value' {
+            $result = ConvertTo-XurrentKnowledgeArticle -File $script:noInstFile -Service 'svc'
+            $result.'Service Instances' | Should -BeNullOrEmpty
+        }
+    }
+
     Context 'When the **Service Instances:** line is present but empty' {
         BeforeAll {
             $script:emptyInstFile = New-TemporaryFile
