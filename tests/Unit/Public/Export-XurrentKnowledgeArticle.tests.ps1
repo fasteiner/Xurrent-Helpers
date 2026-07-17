@@ -310,6 +310,37 @@ Description body.
         }
     }
 
+    Context 'When ServiceInstances is not provided (parameter is optional)' {
+        BeforeAll {
+            $script:noInstDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+            Set-Content -Path (Join-Path $script:noInstDir.FullName 'TestKnowledgeArticle.md') -Value (Get-Content (Join-Path $script:tempDir.FullName 'TestKnowledgeArticle.md') -Raw) -Encoding UTF8
+            $script:noInstOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-noinst.csv"
+        }
+
+        AfterAll {
+            Remove-Item -Path $script:noInstDir.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $script:noInstOutput -Force -ErrorAction SilentlyContinue
+        }
+
+        It 'Should not invoke Read-Host for ServiceInstances when the parameter is omitted' {
+            Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput
+            Should -Invoke -ModuleName XurrentHelpers -CommandName Read-Host -Exactly -Times 0 -Scope It
+        }
+
+        It 'Should write an empty Service Instances column when ServiceInstances is not provided' {
+            Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
+            Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput
+            $rows = Import-Csv -Path $script:noInstOutput
+            $rows[0].'Service Instances' | Should -BeNullOrEmpty
+        }
+
+        It 'Should not throw when ServiceInstances is omitted' {
+            Mock -ModuleName XurrentHelpers -CommandName Read-Host -MockWith { '' }
+            { Export-XurrentKnowledgeArticle -Folder $script:noInstDir.FullName -Service 'svc' -OutputPath $script:noInstOutput } | Should -Not -Throw
+        }
+    }
+
     Context 'When using -WhatIf' {
         BeforeAll {
             $script:whatIfOutput = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.Guid]::NewGuid())-whatif.csv"
