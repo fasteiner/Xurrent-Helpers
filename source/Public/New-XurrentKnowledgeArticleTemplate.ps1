@@ -6,8 +6,10 @@ function New-XurrentKnowledgeArticleTemplate
 
         .DESCRIPTION
         Writes a *KnowledgeArticle.md template to the specified folder with the correct
-        structure expected by ConvertTo-KnowledgeArticle: an H1 heading for the Subject,
-        a **Keywords:** line, and ## Description and ## Instructions sections.
+        structure expected by ConvertTo-XurrentKnowledgeArticle: an H1 heading for the
+        Subject, empty **ID:**, **Service:**, and **Service Instances:** metadata lines
+        (left blank so the ConvertTo fallbacks still apply), a **Keywords:** line, and
+        ## Description and ## Instructions sections.
 
         .PARAMETER Name
         The name of the knowledge article, used as the H1 heading and filename prefix.
@@ -18,11 +20,11 @@ function New-XurrentKnowledgeArticleTemplate
         Defaults to the current working directory.
 
         .EXAMPLE
-        New-KnowledgeArticleTemplate -Name 'HowToResetPassword'
+        New-XurrentKnowledgeArticleTemplate -Name 'HowToResetPassword'
         Creates HowToResetPasswordKnowledgeArticle.md in the current directory.
 
         .EXAMPLE
-        New-KnowledgeArticleTemplate -Name 'VPN Setup' -Path C:\Articles
+        New-XurrentKnowledgeArticleTemplate -Name 'VPN Setup' -Path C:\Articles
         Creates 'VPN SetupKnowledgeArticle.md' in C:\Articles.
     #>
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -46,6 +48,12 @@ function New-XurrentKnowledgeArticleTemplate
 
         $template = @"
 # $Name
+
+**ID:**
+
+**Service:**
+
+**Service Instances:**
 
 **Keywords:** keyword1, keyword2
 

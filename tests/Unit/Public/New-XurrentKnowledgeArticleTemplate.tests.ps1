@@ -42,6 +42,38 @@ Describe 'New-XurrentKnowledgeArticleTemplate' {
             $content | Should -Match '\*\*Keywords:\*\*'
         }
 
+        It 'Should include an ID metadata line' {
+            $content = Get-Content -Path $script:result.FullName -Raw
+            $content | Should -Match '(?m)^\*\*ID:\*\*'
+        }
+
+        It 'Should include a Service metadata line' {
+            $content = Get-Content -Path $script:result.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service:\*\*'
+        }
+
+        It 'Should include a Service Instances metadata line' {
+            $content = Get-Content -Path $script:result.FullName -Raw
+            $content | Should -Match '(?m)^\*\*Service Instances:\*\*'
+        }
+
+        It 'Should place the metadata lines before the Description section' {
+            $content = Get-Content -Path $script:result.FullName -Raw
+            $descriptionIndex = $content.IndexOf('## Description')
+            $descriptionIndex | Should -BeGreaterOrEqual 0
+            foreach ($metadataLine in '**ID:**', '**Service:**', '**Service Instances:**') {
+                $content.IndexOf($metadataLine) | Should -BeGreaterOrEqual 0
+                $content.IndexOf($metadataLine) | Should -BeLessThan $descriptionIndex
+            }
+        }
+
+        It 'Should round-trip with empty metadata so the Service and ServiceInstances fallbacks still apply' {
+            $article = ConvertTo-XurrentKnowledgeArticle -File $script:result.FullName -Service 'fallback svc' -ServiceInstances 'fallback inst'
+            $article.ID | Should -BeNullOrEmpty
+            $article.Service | Should -Be 'fallback svc'
+            $article.'Service Instances' | Should -Be 'fallback inst'
+        }
+
         It 'Should include a Description section' {
             $content = Get-Content -Path $script:result.FullName -Raw
             $content | Should -Match '(?m)^##\s+Description'

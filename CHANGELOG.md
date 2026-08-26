@@ -5,6 +5,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `Export-XurrentKnowledgeArticle`: The "No Service Instances specified" warning was emitted whenever the `-ServiceInstances` parameter / `SERVICE_INSTANCES` `.env` fallback was empty, even when the Markdown files supplied their own `**Service Instances:**` metadata. The warning is now emitted per article, only when an article's effective Service Instances value is still empty after considering the Markdown metadata and the fallbacks, and it now includes the article's Subject to make correction easier. The `-InputObject` passthrough path still never warns. Closes #14.
+
+### Changed
+
+- `New-XurrentKnowledgeArticleTemplate`: The generated template now includes the `**ID:**`, `**Service:**`, and `**Service Instances:**` metadata lines understood by `ConvertTo-XurrentKnowledgeArticle`, matching the layout produced by `ConvertFrom-XurrentKnowledgeArticle`. The lines are emitted empty on purpose so that `-Service` / `-ServiceInstances` / `.env` fallbacks continue to apply (and the missing-instance warning still fires) until real values are filled in. The help examples now use the correct cmdlet name.
+- Devcontainer: The GitHub CLI (`gh`) is now installed via the `github-cli` devcontainer feature.
+
 ## [0.7.0] - 2026-07-17
 
 ### Changed
