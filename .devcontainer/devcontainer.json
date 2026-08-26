@@ -10,7 +10,8 @@
 			"username": "vscode",
 			"upgradePackages": "false",
 			"nonFreePackages": "true"
-		}
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	"postCreateCommand": "pwsh -f .devcontainer/setup.ps1",
 	// Configure tool-specific properties.

@@ -110,7 +110,7 @@ Import-XurrentKnowledgeArticle -CsvPath .\export-knowledge_articles.csv -OutputF
 Export-XurrentKnowledgeArticle -Folder .\Articles
 ```
 
-> New articles authored from `New-XurrentKnowledgeArticleTemplate` have no `**ID:**` line and are imported as new records.
+> New articles authored from `New-XurrentKnowledgeArticleTemplate` have an empty `**ID:**` line and are imported as new records.
 
 ### Generate an example CSV
 
