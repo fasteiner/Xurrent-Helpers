@@ -16,7 +16,9 @@ function Export-XurrentKnowledgeArticle
         **Keywords:** line, and ID/Service/Service Instances from their metadata lines.
         Service and ServiceInstances can be set via parameters or loaded from a .env file
         (SERVICE and SERVICE_INSTANCES keys) and are used as fallbacks when the Markdown
-        file does not provide service metadata.
+        file does not provide service metadata. A warning naming the article's Subject is
+        written for each article whose effective Service Instances value is empty after
+        applying the fallback.
 
         When using the InputObject parameter set the objects are exported as-is; Service,
         ServiceInstances, and EnvFile parameters are not applicable.
@@ -34,9 +36,11 @@ function Export-XurrentKnowledgeArticle
 
         .PARAMETER ServiceInstances
         Xurrent service instance name(s) for the Service Instances column. Optional - the Xurrent
-        API does not require a value. Can be supplied via SERVICE_INSTANCES= in a .env file. When
-        omitted, a warning is written because the article(s) will then be visible to every
-        specialist covered for the service rather than scoped to one instance.
+        API does not require a value. Can be supplied via SERVICE_INSTANCES= in a .env file. The
+        value is a fallback for articles without their own **Service Instances:** Markdown
+        metadata; a warning naming the article's Subject is written for each article whose
+        effective Service Instances value is empty, because that article will then be visible
+        to every specialist covered for the service rather than scoped to one instance.
 
         .PARAMETER OutputPath
         Full path of the CSV file to write. When only a directory is supplied (or the
@@ -137,11 +141,6 @@ function Export-XurrentKnowledgeArticle
             $Service = Read-Host -Prompt "Enter SERVICE name (e.g. 'techwork automator')"
         }
 
-        if (-not $ServiceInstances)
-        {
-            Write-Warning "No Service Instances specified for service '$Service' - the article(s) will be visible to every specialist covered for any instance of this service, rather than scoped to one specific instance."
-        }
-
         $files = Get-ChildItem -Path $Folder -Recurse -Filter '*KnowledgeArticle.md'
 
         if ($files.Count -eq 0)
@@ -155,7 +154,14 @@ function Export-XurrentKnowledgeArticle
         foreach ($file in $files)
         {
             Write-Verbose "  Processing $($file.FullName)"
-            $rows.Add((ConvertTo-XurrentKnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances))
+            $article = ConvertTo-XurrentKnowledgeArticle -File $file -Service $Service -ServiceInstances $ServiceInstances
+
+            if (-not $article.'Service Instances')
+            {
+                Write-Warning "No Service Instances specified for article '$($article.Subject)' (service '$($article.Service)') - the article will be visible to every specialist covered for any instance of this service, rather than scoped to one specific instance."
+            }
+
+            $rows.Add($article)
         }
     }
 
