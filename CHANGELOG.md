@@ -5,6 +5,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-13
+
 ### Fixed
 
 - `Export-XurrentKnowledgeArticle`: The "No Service Instances specified" warning was emitted whenever the `-ServiceInstances` parameter / `SERVICE_INSTANCES` `.env` fallback was empty, even when the Markdown files supplied their own `**Service Instances:**` metadata. The warning is now emitted per article, only when an article's effective Service Instances value is still empty after considering the Markdown metadata and the fallbacks, and it now includes the article's Subject to make correction easier. The `-InputObject` passthrough path still never warns. Closes #14.
