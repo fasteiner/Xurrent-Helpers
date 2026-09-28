@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ConvertTo-XurrentCrossEnvironmentImport`: Prepares Xurrent CSV exports from one environment (e.g. QA) for import into another (e.g. Production). For every row with an `ID`, the value is moved to `Source ID` and `ID` is emptied, so the import creates new records instead of updating the records with that ID, and the original ID stays traceable. Rows without an `ID` stay untouched, so a second run keeps the `Source ID`; a different existing `Source ID` is overwritten with a warning. Files are selected by name (`-Path`, also from the pipeline) or by download time (`-LastHours` in `-Folder`, by default the last hour in the Downloads folder) and overwritten in place as UTF-8 without BOM, with column order and multi-line values unchanged. Supports `-WhatIf` / `-Confirm` and returns one object per file with `File`, `Moved` and `Status`. Closes #16.
+
 ## [0.7.1] - 2026-09-13
 
 ### Fixed
