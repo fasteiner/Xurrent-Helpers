@@ -13,14 +13,14 @@ For detailed API reference, see the [Xurrent API documentation](https://develope
 
 ## Functions
 
-| Knowledge Articles                     |
-| -------------------------------------- |
-| ConvertTo-XurrentKnowledgeArticle      |
-| ConvertFrom-XurrentKnowledgeArticle    |
-| Export-XurrentKnowledgeArticle         |
-| Import-XurrentKnowledgeArticle         |
-| New-XurrentKnowledgeArticleCsvExample  |
-| New-XurrentKnowledgeArticleTemplate    |
+| Knowledge Articles                     | CSV Exports                             |
+| -------------------------------------- | --------------------------------------- |
+| ConvertTo-XurrentKnowledgeArticle      | ConvertTo-XurrentCrossEnvironmentImport |
+| ConvertFrom-XurrentKnowledgeArticle    |                                         |
+| Export-XurrentKnowledgeArticle         |                                         |
+| Import-XurrentKnowledgeArticle         |                                         |
+| New-XurrentKnowledgeArticleCsvExample  |                                         |
+| New-XurrentKnowledgeArticleTemplate    |                                         |
 
 ## Getting Started
 
@@ -120,3 +120,23 @@ New-XurrentKnowledgeArticleCsvExample
 
 New-XurrentKnowledgeArticleCsvExample -OutputPath C:\Temp\example.csv
 ```
+
+## CSV Exports
+
+### Import records from one environment into another
+
+A Xurrent import row that carries an `ID` updates the record with that ID in the target environment. To copy records from one environment into another (for example from QA to Production), move the ID into `Source ID` first: the import then creates new records, and the original ID stays traceable.
+
+```powershell
+# Convert every CSV downloaded to the Downloads folder within the last hour
+ConvertTo-XurrentCrossEnvironmentImport
+
+# Preview the last three hours without changing any file
+ConvertTo-XurrentCrossEnvironmentImport -LastHours 3 -WhatIf
+
+# Convert specific files, by name in -Folder or piped from Get-ChildItem
+ConvertTo-XurrentCrossEnvironmentImport -Path slas-1.csv, teams-1.csv -Folder .\Exports
+Get-ChildItem .\Exports -Filter '*.csv' | ConvertTo-XurrentCrossEnvironmentImport
+```
+
+Rows without an `ID` stay untouched, so running the cmdlet twice is safe. The files are overwritten in place as UTF-8 without BOM; column order and multi-line values (such as the HTML of UI extensions) stay unchanged.
