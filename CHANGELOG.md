@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ConvertTo-XurrentPseudonymized`: Replaces the values of selected columns in Xurrent CSV exports with consistent placeholders, so the data can be analysed and shared without real names, e-mail addresses or IP addresses. `-ColumnType` chooses the format per column (`Name` = `Person-001`, `Email` = `user001@example.invalid`, `IP` = `198.18.0.1` from the benchmarking range 198.18.0.0/15, `Text` = `Text-001`, the default for columns named only in `-Column`). The same value gets the same placeholder in every column, in every file of a call (`-Path`, also from the pipeline) and across calls that share a mapping file. The pseudonymized CSV goes to a new file (default `<name>.pseudonymized.csv`, the original stays untouched) with column order, other values and multi-line fields unchanged. The mapping (`Placeholder`, `Type`, `Value`) goes to a separate CSV (default `pseudonymization.mapping.csv` next to the output); an existing mapping is extended, never overwritten, and is saved before the first output file. Supports `-WhatIf` / `-Confirm`; all files are UTF-8 without BOM. Closes #18.
+- `ConvertFrom-XurrentPseudonymized`: Replaces the placeholders from a mapping file with the real values again, in files (`-Path`, default `<name>.restored.<ext>`) or strings (`-Text`, also from the pipeline, e.g. `Get-Content`). CSV files are restored field by field, so values with commas, quotes or line breaks give back the original export; other files are restored as text with their line endings unchanged. Placeholders only match as a whole (`Person-001` not inside `Person-0010`), and a restored value is never replaced again.
+- `.gitignore`: `*.mapping.csv`, because pseudonymization mappings contain the real values.
+
 ## [0.7.1] - 2026-09-13
 
 ### Fixed
