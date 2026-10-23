@@ -13,14 +13,14 @@ For detailed API reference, see the [Xurrent API documentation](https://develope
 
 ## Functions
 
-| Knowledge Articles                     |
-| -------------------------------------- |
-| ConvertTo-XurrentKnowledgeArticle      |
-| ConvertFrom-XurrentKnowledgeArticle    |
-| Export-XurrentKnowledgeArticle         |
-| Import-XurrentKnowledgeArticle         |
-| New-XurrentKnowledgeArticleCsvExample  |
-| New-XurrentKnowledgeArticleTemplate    |
+| Knowledge Articles                     | CSV Exports                             |
+| -------------------------------------- | --------------------------------------- |
+| ConvertTo-XurrentKnowledgeArticle      | ConvertTo-XurrentPseudonymized          |
+| ConvertFrom-XurrentKnowledgeArticle    | ConvertFrom-XurrentPseudonymized        |
+| Export-XurrentKnowledgeArticle         |                                         |
+| Import-XurrentKnowledgeArticle         |                                         |
+| New-XurrentKnowledgeArticleCsvExample  |                                         |
+| New-XurrentKnowledgeArticleTemplate    |                                         |
 
 ## Getting Started
 
@@ -120,3 +120,31 @@ New-XurrentKnowledgeArticleCsvExample
 
 New-XurrentKnowledgeArticleCsvExample -OutputPath C:\Temp\example.csv
 ```
+
+## CSV Exports
+
+### Pseudonymize exports for analysis
+
+Analysis scripts often only need the shape of the data, not real names, e-mail addresses or IPs. `ConvertTo-XurrentPseudonymized` replaces the values of the columns you name with consistent placeholders and keeps the real values in a local mapping file; `ConvertFrom-XurrentPseudonymized` translates the results back.
+
+```powershell
+# Writes requests.pseudonymized.csv and pseudonymization.mapping.csv next to requests.csv
+ConvertTo-XurrentPseudonymized -Path .\requests.csv -ColumnType @{
+    'Requested by'       = 'Name'    # Person-001
+    'Requested for'      = 'Name'
+    'Requested by email' = 'Email'   # user001@example.invalid
+    'IP address'         = 'IP'      # 198.18.0.1
+} -Column 'Organization'             # Text-001
+
+# Several exports share one mapping, so the same person gets the same placeholder everywhere
+Get-ChildItem .\Exports -Filter '*.csv' |
+    ConvertTo-XurrentPseudonymized -ColumnType @{ 'Requested by' = 'Name' } -MappingPath ..\Local\exports.mapping.csv
+
+# Translate an analysis result back: files are written as <name>.restored.<ext>, text is returned
+ConvertFrom-XurrentPseudonymized -Path .\analysis.md -MappingPath .\pseudonymization.mapping.csv
+Get-Content .\summary.txt | ConvertFrom-XurrentPseudonymized -MappingPath .\pseudonymization.mapping.csv
+```
+
+- The same value always gets the same placeholder, across columns, files and runs with the same mapping file. An existing mapping is extended, never overwritten.
+- The original export is never changed. Column order, the other columns and multi-line values stay as they are; free text in other columns is **not** scanned for personal data.
+- The mapping file contains the real values. Keep it local and out of every repository; its default name ends in `.mapping.csv`, which this repository's `.gitignore` excludes.

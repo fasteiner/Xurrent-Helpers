@@ -1,5 +1,8 @@
 output/
 
+# Pseudonymization mappings hold real names and addresses (ConvertTo-XurrentPseudonymized)
+*.mapping.csv
+
 **.bak
 *.local.*
 !**/README.md
